@@ -44,6 +44,8 @@ Versi web dari aplikasi Flutter **Sweetnation** (kasir homemade food). React + T
 
 **Tampilan** — Neo-Brutalism: border hitam 3 px, hard shadow, palet kuning/pink/biru/lime, latar titik-titik. Sidebar di ≥ 900 px, bottom nav di HP, kartu transaksi & stok jadi 2 kolom di desktop.
 
+**Komponen kustom** — tidak ada `<select>`/dialog bawaan browser: dropdown `src/Select.tsx` (keyboard navigasi, buka ke atas bila ruang bawah kurang), modal & toast sendiri, konfirmasi keluar pakai modal.
+
 **Pagination** — semua daftar panjang dipotong per halaman: Menu 12, Transaksi 10, Stok 20, Statistik 10; pilihan 10/20/50/100 per halaman, nomor halaman ringkas (`1 … 4 5 6 … 12`), reset ke halaman 1 saat filter/pencarian berubah. Hook `usePaged` + komponen `Pager` di `src/Pagination.tsx`.
 
 **Deploy** — push/merge ke `main` → GitHub Actions → `vercel deploy --prod`; SPA rewrite ke `index.html`.
