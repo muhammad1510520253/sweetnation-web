@@ -1,10 +1,10 @@
 import { useMemo, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { Plus, Trash2 } from 'lucide-react';
+import { Plus, Search, Trash2 } from 'lucide-react';
 import { api, ddMMyyyy, hhmmss, rupiah, ymd, type Product } from '../api';
 import { useAuth } from '../auth';
 import { useStore } from '../store';
-import { Modal, useToast } from '../ui';
+import { Confirm, Modal, useToast } from '../ui';
 import { printReceipt } from '../receipt';
 import { loadSettings } from '../settings';
 import { Select } from '../Select';
@@ -31,7 +31,15 @@ export default function TransactionForm() {
     location.state?.productId ? [{ key: crypto.randomUUID(), productId: location.state.productId, jumlah: 1, diskon: 0 }] : [],
   );
   const [picker, setPicker] = useState(false);
+  const [pq, setPq] = useState('');
+  const [ask, setAsk] = useState(false);
   const [saving, setSaving] = useState(false);
+
+  const picked = useMemo(() => {
+    const key = pq.trim().toLowerCase();
+    if (!key) return products;
+    return products.filter((p) => p.nama.toLowerCase().includes(key));
+  }, [products, pq]);
 
   const productMap = useMemo(() => {
     const m = new Map<string, Product>();
@@ -52,6 +60,12 @@ export default function TransactionForm() {
       return [...prev, { key: crypto.randomUUID(), productId: id, jumlah: 1, diskon: 0 }];
     });
     setPicker(false);
+  };
+
+  const askSubmit = () => {
+    if (rows.length === 0) return show('Pilih menu dulu', 'error');
+    if (!nama.trim()) return show('Nama pembeli wajib diisi', 'error');
+    setAsk(true);
   };
 
   const submit = async () => {
@@ -88,6 +102,7 @@ export default function TransactionForm() {
         })),
     };
 
+    setAsk(false);
     setSaving(true);
     try {
       await api.createTransaction(user.user_id, payload);
@@ -134,7 +149,7 @@ export default function TransactionForm() {
 
         <div className="section-title">
           <h3 style={{ fontSize: 16 }}>Item Pesanan</h3>
-          <button className="btn sm" onClick={() => setPicker(true)}><Plus size={14} /> Menu</button>
+          <button className="btn sm" onClick={() => { setPq(''); setPicker(true); }}><Plus size={14} /> Menu</button>
         </div>
 
         {rows.length === 0 ? (
@@ -211,15 +226,29 @@ export default function TransactionForm() {
           </div>
         </div>
 
-        <button className="btn block" style={{ marginTop: 16 }} onClick={submit} disabled={saving}>
+        <button className="btn block" style={{ marginTop: 16 }} onClick={askSubmit} disabled={saving}>
           {saving ? 'Menyimpan…' : 'Simpan Transaksi'}
         </button>
       </div>
 
       {picker && (
         <Modal title="Pilih Menu" onClose={() => setPicker(false)} wide>
+          <div className="search-wrap" style={{ marginBottom: 12 }}>
+            <Search size={16} style={{ color: '#555' }} />
+            <input
+              className="input"
+              placeholder="Cari menu…"
+              value={pq}
+              onChange={(e) => setPq(e.target.value)}
+              autoFocus
+            />
+          </div>
+          <p className="hint" style={{ marginBottom: 10 }}>{picked.length} menu tersedia</p>
+          {picked.length === 0 ? (
+            <div className="empty">Menu tidak ditemukan</div>
+          ) : (
           <div className="product-grid" style={{ gridTemplateColumns: 'repeat(3, 1fr)' }}>
-            {products.map((p) => (
+            {picked.map((p) => (
               <button key={p.id} className="product" onClick={() => addRow(p.id)}>
                 <div className="thumb">
                   {p.image ? <img src={p.image} alt={p.nama} loading="lazy" /> : null}
@@ -229,7 +258,24 @@ export default function TransactionForm() {
               </button>
             ))}
           </div>
+          )}
         </Modal>
+      )}
+
+      {ask && (
+        <Confirm
+          title="Simpan Transaksi?"
+          message={
+            <>
+              Transaksi untuk <strong>{nama.trim() || '-'}</strong> dengan total{' '}
+              <strong>{rupiah(total)}</strong> akan disimpan.
+            </>
+          }
+          confirmLabel="Simpan"
+          busy={saving}
+          onConfirm={submit}
+          onCancel={() => setAsk(false)}
+        />
       )}
     </div>
   );

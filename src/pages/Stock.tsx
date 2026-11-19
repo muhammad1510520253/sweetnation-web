@@ -3,7 +3,7 @@ import { Pencil, Plus, Search } from 'lucide-react';
 import { api, rupiah, type Stock } from '../api';
 import { useAuth } from '../auth';
 import { Pager, usePaged } from '../Pagination';
-import { Empty, Modal, Spinner, useToast } from '../ui';
+import { Confirm, Empty, Modal, Spinner, useToast } from '../ui';
 import { Select } from '../Select';
 
 const UNITS = [
@@ -40,6 +40,7 @@ export default function StockPage() {
   const [q, setQ] = useState('');
   const [filter, setFilter] = useState('Semua');
   const [form, setForm] = useState<FormState | null>(null);
+  const [ask, setAsk] = useState(false);
   const [saving, setSaving] = useState(false);
 
   const load = useCallback(async () => {
@@ -91,6 +92,7 @@ export default function StockPage() {
       isUpdate: Boolean(form.id),
       isDelete: false,
     };
+    setAsk(false);
     setSaving(true);
     try {
       await api.saveStock(user.user_id, payload);
@@ -201,9 +203,34 @@ export default function StockPage() {
           </div>
           <div className="modal-actions">
             <button className="btn ghost" onClick={() => setForm(null)}>Batal</button>
-            <button className="btn" onClick={save} disabled={saving}>{saving ? 'Menyimpan…' : 'Simpan'}</button>
+            <button
+              className="btn"
+              onClick={() => {
+                if (!form.nama.trim()) return show('Nama stok wajib diisi', 'error');
+                setAsk(true);
+              }}
+              disabled={saving}
+            >
+              {saving ? 'Menyimpan…' : 'Simpan'}
+            </button>
           </div>
         </Modal>
+      )}
+
+      {ask && form && (
+        <Confirm
+          title={form.id ? 'Simpan Perubahan?' : 'Tambah Stok?'}
+          message={
+            <>
+              {form.id ? 'Perubahan stok' : 'Stok baru'}{' '}
+              <strong>{form.nama.trim() || '-'}</strong> akan disimpan.
+            </>
+          }
+          confirmLabel="Simpan"
+          busy={saving}
+          onConfirm={save}
+          onCancel={() => setAsk(false)}
+        />
       )}
     </div>
   );

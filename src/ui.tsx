@@ -64,3 +64,43 @@ export function Modal({
     </div>
   );
 }
+
+/** Dialog konfirmasi kustom (pengganti window.confirm). */
+export function Confirm({
+  title = 'Konfirmasi',
+  message,
+  confirmLabel = 'Ya, lanjut',
+  cancelLabel = 'Batal',
+  danger,
+  busy,
+  onConfirm,
+  onCancel,
+}: {
+  title?: string;
+  message: ReactNode;
+  confirmLabel?: string;
+  cancelLabel?: string;
+  danger?: boolean;
+  busy?: boolean;
+  onConfirm: () => void;
+  onCancel: () => void;
+}) {
+  return (
+    <Modal title={title} onClose={onCancel}>
+      <p className="confirm-msg">{message}</p>
+      <div className="modal-actions">
+        <button type="button" className="btn ghost" onClick={onCancel} disabled={busy}>
+          {cancelLabel}
+        </button>
+        <button
+          type="button"
+          className={`btn ${danger ? 'danger' : ''}`.trim()}
+          onClick={onConfirm}
+          disabled={busy}
+        >
+          {busy ? 'Memproses…' : confirmLabel}
+        </button>
+      </div>
+    </Modal>
+  );
+}

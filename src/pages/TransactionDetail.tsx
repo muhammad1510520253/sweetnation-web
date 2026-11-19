@@ -4,7 +4,7 @@ import { ArrowLeft, Printer } from 'lucide-react';
 import { api, rupiah, type Transaction, type TransactionItem } from '../api';
 import { useAuth } from '../auth';
 import { useStore } from '../store';
-import { Spinner, useToast } from '../ui';
+import { Confirm, Spinner, useToast } from '../ui';
 import { printReceipt } from '../receipt';
 import { loadSettings } from '../settings';
 import { txTime } from './Transactions';
@@ -26,6 +26,7 @@ export default function TransactionDetail() {
   const [items, setItems] = useState<TransactionItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [busy, setBusy] = useState(false);
+  const [ask, setAsk] = useState(false);
 
   const load = useCallback(async () => {
     if (!user) return;
@@ -48,6 +49,7 @@ export default function TransactionDetail() {
     if (!tx) return;
     const next = NEXT_STATUS[tx.status];
     if (!next) return show('Transaksi sudah selesai', 'error');
+    setAsk(false);
     setBusy(true);
     try {
       await api.updateTransactionStatus(user!.user_id, tx.transaksi_id, next);
@@ -143,11 +145,27 @@ export default function TransactionDetail() {
         <div className="no-print" style={{ marginTop: 18, display: 'flex', gap: 10 }}>
           <button className="btn ghost block" onClick={() => nav('/transactions')}>Kembali</button>
           {NEXT_STATUS[tx.status] && (
-            <button className="btn block" onClick={advance} disabled={busy}>
+            <button className="btn block" onClick={() => setAsk(true)} disabled={busy}>
               {busy ? 'Menyimpan…' : `Tandai ${NEXT_STATUS[tx.status]}`}
             </button>
           )}
         </div>
+
+        {ask && NEXT_STATUS[tx.status] && (
+          <Confirm
+            title="Ubah Status?"
+            message={
+              <>
+                Status transaksi <strong>{tx.transaksi_id}</strong> akan diubah menjadi{' '}
+                <strong>{NEXT_STATUS[tx.status]}</strong>.
+              </>
+            }
+            confirmLabel={`Ya, ${NEXT_STATUS[tx.status]}`}
+            busy={busy}
+            onConfirm={advance}
+            onCancel={() => setAsk(false)}
+          />
+        )}
       </div>
     </div>
   );

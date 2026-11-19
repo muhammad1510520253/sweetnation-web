@@ -31,7 +31,7 @@ export default function Login() {
   return (
     <div className="login-wrap">
       <div className="login-head">
-        <h1>Welcome Back</h1>
+        <h1>Selamat Datang</h1>
         <div className="logo-ring">
           <img src="/logo.png" alt="Sweetnation" />
         </div>
@@ -50,7 +50,7 @@ export default function Login() {
           />
         </div>
         <div className="field">
-          <label htmlFor="password">Password</label>
+          <label htmlFor="password">Kata Sandi</label>
           <input
             id="password"
             className="input"
@@ -63,13 +63,13 @@ export default function Login() {
         </div>
         {error && <p className="error-text">{error}</p>}
         <button className="btn block" type="submit" disabled={loading}>
-          {loading ? 'Memproses…' : 'Sign In'}
+          {loading ? 'Memproses…' : 'Masuk'}
         </button>
         <p className="hint" style={{ textAlign: 'center', marginTop: 14 }}>
-          Sign in and get started
+          Masuk untuk mulai berjualan
         </p>
       </form>
-      <div className="login-foot">Happiness is HOMEMADE</div>
+      <div className="login-foot">Kebahagiaan itu buatan sendiri</div>
     </div>
   );
 }
