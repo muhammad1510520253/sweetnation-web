@@ -34,6 +34,7 @@ export default function TransactionForm() {
   const [pq, setPq] = useState('');
   const [ask, setAsk] = useState(false);
   const [delKey, setDelKey] = useState<string | null>(null);
+  const [askCancel, setAskCancel] = useState(false);
   const [saving, setSaving] = useState(false);
 
   const picked = useMemo(() => {
@@ -237,7 +238,7 @@ export default function TransactionForm() {
         </div>
 
         <div className="row" style={{ marginTop: 10 }}>
-          <button className="btn ghost" style={{ flex: '0 0 38%' }} onClick={() => nav('/transactions')} disabled={saving}>
+          <button className="btn ghost" style={{ flex: '0 0 38%' }} onClick={() => setAskCancel(true)} disabled={saving}>
             Batal
           </button>
           <button className="btn" style={{ flex: 1 }} onClick={askSubmit} disabled={saving}>
@@ -293,6 +294,24 @@ export default function TransactionForm() {
             setDelKey(null);
           }}
           onCancel={() => setDelKey(null)}
+        />
+      )}
+
+      {askCancel && (
+        <Confirm
+          title="Batalkan Transaksi?"
+          message={
+            <>
+              Data transaksi yang sudah diisi{rows.length > 0 ? ' beserta item pesanannya' : ''} akan hilang.
+            </>
+          }
+          confirmLabel="Ya, Batalkan"
+          danger
+          onConfirm={() => {
+            setAskCancel(false);
+            nav('/transactions');
+          }}
+          onCancel={() => setAskCancel(false)}
         />
       )}
 
