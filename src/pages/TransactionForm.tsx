@@ -256,7 +256,6 @@ export default function TransactionForm() {
               placeholder="Cari menu…"
               value={pq}
               onChange={(e) => setPq(e.target.value)}
-              autoFocus
             />
           </div>
           <p className="hint" style={{ marginBottom: 10 }}>{picked.length} menu tersedia</p>

@@ -83,34 +83,71 @@ async function request<T>(url: string, init?: RequestInit): Promise<T> {
 const get = <T,>(sheet: string, params: Record<string, string | number | undefined> = {}) =>
   request<T>(buildUrl(sheet, params));
 
-const post = <T,>(sheet: string, params: Record<string, string | number | undefined>, body: unknown) =>
-  request<T>(buildUrl(sheet, params), {
+/* ---------- cache baca: 30 detik ----------
+ * Tiap request Apps Script ~2,5 detik, jadi data yang sama tidak diambil ulang
+ * saat pindah halaman. Semua penulisan mengosongkan cache.
+ */
+const TTL = 30_000;
+const readCache = new Map<string, { at: number; data: unknown }>();
+const inflight = new Map<string, Promise<unknown>>();
+
+export const clearApiCache = () => {
+  readCache.clear();
+};
+
+const getCached = <T,>(
+  sheet: string,
+  params: Record<string, string | number | undefined> = {},
+  ttl = TTL,
+) => {
+  const key = buildUrl(sheet, params);
+  const hit = readCache.get(key);
+  if (hit && Date.now() - hit.at < ttl) return Promise.resolve(hit.data as T);
+
+  const pending = inflight.get(key);
+  if (pending) return pending as Promise<T>;
+
+  const req = get<T>(sheet, params)
+    .then((data) => {
+      readCache.set(key, { at: Date.now(), data });
+      return data;
+    })
+    .finally(() => inflight.delete(key));
+
+  inflight.set(key, req);
+  return req;
+};
+
+const post = <T,>(sheet: string, params: Record<string, string | number | undefined>, body: unknown) => {
+  clearApiCache();
+  return request<T>(buildUrl(sheet, params), {
     method: 'POST',
     // Apps Script membaca e.postData.contents; text/plain menghindari preflight CORS.
     headers: { 'Content-Type': 'text/plain;charset=utf-8' },
     body: JSON.stringify(body),
   });
+};
 
 export const api = {
   login: (email: string, password: string) =>
     get<User>('akun', { email: email.trim().toLowerCase(), password: password.trim() }),
   // Satu request untuk produk + konfigurasi (script optimized: sheet=bootstrap).
   bootstrap: (userId: string) =>
-    get<{ produk: Product[]; konfigurasi: Configuration[] }>('bootstrap', { userId }),
-  products: (userId: string) => get<Product[]>('produk', { userId }),
-  configuration: (userId: string) => get<Configuration[]>('konfigurasi', { userId }),
+    getCached<{ produk: Product[]; konfigurasi: Configuration[] }>('bootstrap', { userId }, 120_000),
+  products: (userId: string) => getCached<Product[]>('produk', { userId }, 120_000),
+  configuration: (userId: string) => getCached<Configuration[]>('konfigurasi', { userId }, 120_000),
   transactions: (userId: string, date: string) =>
-    get<Transaction[]>('transaksi', { transaksiDate: date, userId }),
+    getCached<Transaction[]>('transaksi', { transaksiDate: date, userId }),
   transactionItems: (userId: string, id: string) =>
-    get<TransactionItem[]>('transaksi-item', { transaksiId: id, userId }),
+    getCached<TransactionItem[]>('transaksi-item', { transaksiId: id, userId }),
   createTransaction: (userId: string, payload: unknown) =>
     post<unknown>('transaksi', { userId }, payload),
   updateTransactionStatus: (userId: string, id: string, value: string) =>
     post<unknown>('transaksi', { userId }, { id, value, isUpdate: true }),
-  stocks: (userId: string) => get<Stock[]>('stok', { userId }),
+  stocks: (userId: string) => getCached<Stock[]>('stok', { userId }),
   saveStock: (userId: string, payload: Record<string, unknown>) =>
     post<unknown>('stok', { userId }, payload),
-  statistic: (userId: string) => get<Statistic[]>('summary', { userId }),
+  statistic: (userId: string) => getCached<Statistic[]>('summary', { userId }),
 };
 
 export const rupiah = (value?: number | null, withPrefix = true) => {
