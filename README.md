@@ -2,7 +2,7 @@
 
 Versi web dari aplikasi Flutter **Sweetnation** (kasir homemade food). React + TypeScript + Vite, responsif: sidebar di desktop, bottom navigation di HP. Data tetap di Google Sheets lewat Apps Script yang sama — tanpa backend baru, tanpa mengubah struktur sheet.
 
-- Produksi: https://sweetnation-web.vercel.app
+- Produksi: https://sweetnation.vercel.app
 - Repo: https://github.com/muhammad1510520253/sweetnation-web
 
 ## 1. Planning
