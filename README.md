@@ -13,7 +13,8 @@ Versi web dari aplikasi Flutter **Sweetnation** (kasir homemade food). React + T
 | 2. Operasional | Beranda, menu, transaksi (list, filter, detail, ubah status), stok, statistik | selesai |
 | 3. Cetak | Pengaturan printer, struk 58/80 mm, pratinjau, cetak otomatis setelah simpan | selesai |
 | 4. Performa | Code splitting per route, cache katalog, header cache aset | selesai |
-| 5. Lanjutan | Bluetooth ESC/POS, PWA offline, foto produk, export laporan | belum |
+| 5. Desain & navigasi | Neo-Brutalism, responsif penuh, pagination di menu/transaksi/stok/statistik | selesai |
+| 6. Lanjutan | Bluetooth ESC/POS, PWA offline, foto produk, export laporan | belum |
 
 ## 2. Fitur
 
@@ -41,6 +42,10 @@ Versi web dari aplikasi Flutter **Sweetnation** (kasir homemade food). React + T
 
 **Cetak struk** — tombol printer di detail transaksi. HTML struk dibuat sendiri (`src/receipt.ts`), dicetak lewat iframe tersembunyi dengan `@page size: 58mm|80mm auto`, jadi ukuran kertas ikut setting dan dialog print tidak menutupi UI.
 
+**Tampilan** — Neo-Brutalism: border hitam 3 px, hard shadow, palet kuning/pink/biru/lime, latar titik-titik. Sidebar di ≥ 900 px, bottom nav di HP, kartu transaksi & stok jadi 2 kolom di desktop.
+
+**Pagination** — semua daftar panjang dipotong per halaman: Menu 12, Transaksi 10, Stok 20, Statistik 10; pilihan 10/20/50/100 per halaman, nomor halaman ringkas (`1 … 4 5 6 … 12`), reset ke halaman 1 saat filter/pencarian berubah. Hook `usePaged` + komponen `Pager` di `src/Pagination.tsx`.
+
 **Deploy** — push/merge ke `main` → GitHub Actions → `vercel deploy --prod`; SPA rewrite ke `index.html`.
 
 ### Belum dikerjakan
@@ -67,6 +72,7 @@ src/
   store.tsx     cache produk & konfigurasi
   settings.ts   setting printer (localStorage)
   receipt.ts    builder teks struk + cetak via iframe
+  Pagination.tsx hook usePaged + komponen Pager
   ui.tsx        toast, modal, spinner, empty state
   App.tsx       router + shell (sidebar desktop / bottom nav mobile)
   pages/        Login, Home, Menu, Transactions, TransactionForm,
@@ -84,8 +90,9 @@ src/
 
 **Desain**
 - Mobile-first, 390 px tanpa horizontal scroll, target sentuh ≥ 40 px.
-- Bottom nav 5 item di HP, sidebar di ≥ 900 px.
-- Warna & radius konsisten via CSS variable; CSS total < 10 kB.
+- Bottom nav di HP, sidebar di ≥ 900 px; grid 2 kolom untuk transaksi & stok di desktop.
+- Neo-Brutalism: `--ink` #0B0B0B, border 3 px, `6px 6px 0` hard shadow, palet kuning/pink/biru/lime.
+- Warna, shadow, radius via CSS variable; CSS ± 16 kB (gzip 3,8 kB).
 - Struk pakai monospace + kolom tetap agar rapi di printer thermal.
 - Toast 2,6 s, modal tutup dengan Esc/klik luar, state kosong & loading selalu ada.
 
