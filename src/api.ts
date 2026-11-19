@@ -87,7 +87,7 @@ const get = <T,>(sheet: string, params: Record<string, string | number | undefin
  * Tiap request Apps Script ~2,5 detik, jadi data yang sama tidak diambil ulang
  * saat pindah halaman. Semua penulisan mengosongkan cache.
  */
-const TTL = 30_000;
+const TTL = 60_000;
 const readCache = new Map<string, { at: number; data: unknown }>();
 const inflight = new Map<string, Promise<unknown>>();
 
