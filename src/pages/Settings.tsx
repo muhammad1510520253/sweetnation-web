@@ -5,6 +5,13 @@ import { DEFAULT_SETTINGS, loadSettings, saveSettings, type Settings } from '../
 import { printTest, receiptText, type ReceiptData } from '../receipt';
 import type { TransactionItem } from '../api';
 import { useToast } from '../ui';
+import { Select } from '../Select';
+
+const PAPERS = [
+  { value: '58' as const, label: '58 mm — 32 karakter' },
+  { value: '80' as const, label: '80 mm — 48 karakter' },
+];
+const COPIES = [1, 2, 3].map((n) => ({ value: n, label: `${n} salinan` }));
 
 const SAMPLE_TX: ReceiptData = {
   transaksi_id: 'TR20260219143012',
@@ -56,15 +63,12 @@ export default function SettingsPage() {
         <div className="card">
           <div className="field">
             <label htmlFor="paper">Ukuran kertas</label>
-            <select
+            <Select
               id="paper"
-              className="select"
               value={form.paper}
-              onChange={(e) => set('paper', e.target.value === '80' ? '80' : '58')}
-            >
-              <option value="58">58 mm — 32 karakter</option>
-              <option value="80">80 mm — 48 karakter</option>
-            </select>
+              options={PAPERS}
+              onChange={(v) => set('paper', v)}
+            />
           </div>
 
           <div className="field">
@@ -94,16 +98,12 @@ export default function SettingsPage() {
 
           <div className="field">
             <label htmlFor="copies">Jumlah salinan</label>
-            <select
+            <Select
               id="copies"
-              className="select"
               value={form.copies}
-              onChange={(e) => set('copies', Number(e.target.value))}
-            >
-              <option value={1}>1 salinan</option>
-              <option value={2}>2 salinan</option>
-              <option value={3}>3 salinan</option>
-            </select>
+              options={COPIES}
+              onChange={(v) => set('copies', v)}
+            />
           </div>
 
           <label className="menu-item" style={{ cursor: 'pointer' }}>

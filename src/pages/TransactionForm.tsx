@@ -7,6 +7,7 @@ import { useStore } from '../store';
 import { Modal, useToast } from '../ui';
 import { printReceipt } from '../receipt';
 import { loadSettings } from '../settings';
+import { Select } from '../Select';
 
 type Row = { key: string; productId: string; jumlah: number; diskon: number };
 
@@ -123,15 +124,11 @@ export default function TransactionForm() {
         <div className="row">
           <div className="field">
             <label>Pembayaran</label>
-            <select className="select" value={payment} onChange={(e) => setPayment(e.target.value)}>
-              {PAYMENTS.map((p) => <option key={p}>{p}</option>)}
-            </select>
+            <Select value={payment} options={PAYMENTS.map((p) => ({ value: p, label: p }))} onChange={setPayment} ariaLabel="Pembayaran" />
           </div>
           <div className="field">
             <label>Pengiriman</label>
-            <select className="select" value={delivery} onChange={(e) => setDelivery(e.target.value)}>
-              {DELIVERIES.map((d) => <option key={d}>{d}</option>)}
-            </select>
+            <Select value={delivery} options={DELIVERIES.map((d) => ({ value: d, label: d }))} onChange={setDelivery} ariaLabel="Pengiriman" />
           </div>
         </div>
 

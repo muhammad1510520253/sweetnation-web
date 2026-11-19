@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
+import { Select } from './Select';
 
 type Opts = { size?: number; resetKey?: unknown };
 
@@ -23,6 +24,7 @@ export function usePaged<T>(items: T[], { size: initialSize = 10, resetKey }: Op
   return { slice, page: current, setPage, pages, size, setSize, total: items.length };
 }
 
+
 export function Pager({
   page,
   pages,
@@ -38,6 +40,12 @@ export function Pager({
   onPage: (p: number) => void;
   onSize: (n: number) => void;
 }) {
+  const sizeOpts = useMemo(() => {
+    const base = [10, 20, 50, 100];
+    const all = base.includes(size) ? base : [...base, size].sort((a, b) => a - b);
+    return all.map((n) => ({ value: n, label: `${n} / hal` }));
+  }, [size]);
+
   const nums = useMemo<(number | '…')[]>(() => {
     if (pages <= 7) return Array.from({ length: pages }, (_, i) => i + 1);
     const out: (number | '…')[] = [1];
@@ -54,49 +62,68 @@ export function Pager({
 
   return (
     <nav className="pager" aria-label="Navigasi halaman">
-      <span className="pager-info">
-        {from}–{to} dari {total}
-      </span>
+      <p className="pager-count">
+        <strong>
+          {from}–{to}
+        </strong>{' '}
+        dari <strong>{total}</strong> data
+      </p>
 
       <div className="pager-nav">
-        <button onClick={() => onPage(page - 1)} disabled={page <= 1} aria-label="Halaman sebelumnya">
+        <button
+          type="button"
+          className="pg-step"
+          onClick={() => onPage(page - 1)}
+          disabled={page <= 1}
+          aria-label="Halaman sebelumnya"
+        >
           <ChevronLeft size={16} />
+          <span className="pg-step-text">Sebelumnya</span>
         </button>
 
         {nums.map((n, i) =>
           n === '…' ? (
-            <span key={`e${i}`} className="pager-info">…</span>
+            <span key={`e${i}`} className="pg-dots" aria-hidden>
+              …
+            </span>
           ) : (
             <button
+              type="button"
               key={n}
-              className={n === page ? 'active' : ''}
+              className={`pg-num ${n === page ? 'on' : ''}`}
               onClick={() => onPage(n)}
               aria-current={n === page ? 'page' : undefined}
+              aria-label={`Halaman ${n}`}
             >
               {n}
             </button>
           ),
         )}
 
-        <button onClick={() => onPage(page + 1)} disabled={page >= pages} aria-label="Halaman berikutnya">
+        <button
+          type="button"
+          className="pg-step"
+          onClick={() => onPage(page + 1)}
+          disabled={page >= pages}
+          aria-label="Halaman berikutnya"
+        >
+          <span className="pg-step-text">Berikutnya</span>
           <ChevronRight size={16} />
         </button>
+      </div>
 
-        <select
-          className="page-size"
+      <div className="pager-size">
+        <span className="pager-size-label">Per halaman</span>
+        <Select
+          small
+          ariaLabel="Jumlah per halaman"
           value={size}
-          onChange={(e) => {
-            onSize(Number(e.target.value));
+          options={sizeOpts}
+          onChange={(n) => {
+            onSize(n);
             onPage(1);
           }}
-          aria-label="Jumlah per halaman"
-        >
-          {[10, 20, 50, 100].map((n) => (
-            <option key={n} value={n}>
-              {n}/hal
-            </option>
-          ))}
-        </select>
+        />
       </div>
     </nav>
   );

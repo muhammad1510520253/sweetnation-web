@@ -4,6 +4,7 @@ import { api, rupiah, type Stock } from '../api';
 import { useAuth } from '../auth';
 import { Pager, usePaged } from '../Pagination';
 import { Empty, Modal, Spinner, useToast } from '../ui';
+import { Select } from '../Select';
 
 const UNITS = [
   { type: 'kg', value: 1000 },
@@ -186,9 +187,7 @@ export default function StockPage() {
             </div>
             <div className="field">
               <label>Satuan</label>
-              <select className="select" value={form.unit} onChange={(e) => setForm({ ...form, unit: e.target.value })}>
-                {UNITS.map((u) => <option key={u.type} value={u.type}>{u.type}</option>)}
-              </select>
+              <Select value={form.unit} options={UNITS.map((u) => ({ value: u.type, label: u.type }))} onChange={(v) => setForm({ ...form, unit: v })} ariaLabel="Satuan" />
             </div>
           </div>
           <div className="field">
@@ -198,9 +197,7 @@ export default function StockPage() {
           </div>
           <div className="field">
             <label>Status</label>
-            <select className="select" value={form.status} onChange={(e) => setForm({ ...form, status: e.target.value })}>
-              {STATUSES.map((s) => <option key={s}>{s}</option>)}
-            </select>
+            <Select value={form.status} options={STATUSES.map((s) => ({ value: s, label: s }))} onChange={(v) => setForm({ ...form, status: v })} ariaLabel="Status" />
           </div>
           <div className="modal-actions">
             <button className="btn ghost" onClick={() => setForm(null)}>Batal</button>
