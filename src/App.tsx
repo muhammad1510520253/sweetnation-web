@@ -1,18 +1,21 @@
-import type { ReactNode } from 'react';
+import { lazy, Suspense, type ReactNode } from 'react';
 import { BrowserRouter, Navigate, NavLink, Outlet, Route, Routes } from 'react-router-dom';
 import { Boxes, Home as HomeIcon, ReceiptText, User, UtensilsCrossed } from 'lucide-react';
 import { AuthProvider, useAuth } from './auth';
 import { StoreProvider } from './store';
-import { ToastProvider } from './ui';
+import { Spinner, ToastProvider } from './ui';
 import Login from './pages/Login';
-import Home from './pages/Home';
-import Menu from './pages/Menu';
-import Transactions from './pages/Transactions';
-import TransactionForm from './pages/TransactionForm';
-import TransactionDetail from './pages/TransactionDetail';
-import StockPage from './pages/Stock';
-import Profile from './pages/Profile';
-import StatisticPage from './pages/Statistic';
+
+// Route-level code splitting: halaman berat baru diunduh saat dibuka.
+const Home = lazy(() => import('./pages/Home'));
+const Menu = lazy(() => import('./pages/Menu'));
+const Transactions = lazy(() => import('./pages/Transactions'));
+const TransactionForm = lazy(() => import('./pages/TransactionForm'));
+const TransactionDetail = lazy(() => import('./pages/TransactionDetail'));
+const StockPage = lazy(() => import('./pages/Stock'));
+const Profile = lazy(() => import('./pages/Profile'));
+const StatisticPage = lazy(() => import('./pages/Statistic'));
+const SettingsPage = lazy(() => import('./pages/Settings'));
 
 const NAV = [
   { to: '/', label: 'Beranda', icon: HomeIcon, end: true },
@@ -67,6 +70,7 @@ export default function App() {
       <AuthProvider>
         <StoreProvider>
           <ToastProvider>
+            <Suspense fallback={<Spinner />}>
             <Routes>
               <Route path="/login" element={<Login />} />
               <Route
@@ -84,9 +88,11 @@ export default function App() {
                 <Route path="stock" element={<StockPage />} />
                 <Route path="profile" element={<Profile />} />
                 <Route path="statistic" element={<StatisticPage />} />
+                <Route path="settings" element={<SettingsPage />} />
               </Route>
               <Route path="*" element={<Navigate to="/" replace />} />
             </Routes>
+            </Suspense>
           </ToastProvider>
         </StoreProvider>
       </AuthProvider>

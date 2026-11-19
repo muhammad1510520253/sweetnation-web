@@ -10,17 +10,6 @@ export default function Profile() {
   const { show } = useToast();
   const nav = useNavigate();
 
-  const printTest = () => {
-    const w = window.open('', '_blank', 'width=380,height=520');
-    if (!w) return show('Popup diblokir browser', 'error');
-    w.document.write(
-      '<pre style="font-family:Courier New,monospace;font-size:12px">SWEETNATION\nHappiness is HOMEMADE\n------------------------\nTEST PRINT\n------------------------\nPrinter siap digunakan.\n</pre>',
-    );
-    w.document.close();
-    w.focus();
-    w.print();
-  };
-
   return (
     <div className="content">
       <div className="page-max" style={{ maxWidth: 560 }}>
@@ -48,9 +37,10 @@ export default function Profile() {
             <span className="mi-title">Refresh Cache</span>
             <span className="mi-value">{loading ? 'memuat…' : 'menu & konfigurasi'}</span>
           </button>
-          <button className="menu-item" onClick={printTest}>
+          <button className="menu-item" onClick={() => nav('/settings')}>
             <span className="mi-icon"><Printer size={17} /></span>
-            <span className="mi-title">Test Printer</span>
+            <span className="mi-title">Pengaturan Printer</span>
+            <span className="mi-value">58/80 mm</span>
           </button>
           <button className="menu-item" onClick={logout}>
             <span className="mi-icon" style={{ background: '#ffe6e6', color: 'var(--red)' }}><LogOut size={17} /></span>

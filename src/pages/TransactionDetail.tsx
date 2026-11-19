@@ -5,6 +5,8 @@ import { api, rupiah, type Transaction, type TransactionItem } from '../api';
 import { useAuth } from '../auth';
 import { useStore } from '../store';
 import { Spinner, useToast } from '../ui';
+import { printReceipt } from '../receipt';
+import { loadSettings } from '../settings';
 import { txTime } from './Transactions';
 
 const NEXT_STATUS: Record<string, string> = {
@@ -77,7 +79,14 @@ export default function TransactionDetail() {
         <div className="page-head no-print">
           <button className="icon-btn" onClick={() => nav(-1)}><ArrowLeft size={16} /></button>
           <h2 style={{ flex: 1 }}>Detail Transaksi</h2>
-          <button className="icon-btn" onClick={() => window.print()} title="Cetak"><Printer size={16} /></button>
+          <button
+            className="icon-btn"
+            onClick={() => printReceipt(tx, items, config, loadSettings())}
+            title="Cetak struk"
+            aria-label="Cetak struk"
+          >
+            <Printer size={16} />
+          </button>
         </div>
 
         <div className="receipt">

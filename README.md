@@ -1,55 +1,116 @@
 # Sweetnation Web
 
-Versi web dari aplikasi Flutter **Sweetnation** — kasir & manajemen pesanan homemade food.
-Dibangun ulang dengan React + TypeScript + Vite, responsive untuk HP maupun desktop.
+Versi web dari aplikasi Flutter **Sweetnation** (kasir homemade food). React + TypeScript + Vite, responsif: sidebar di desktop, bottom navigation di HP. Data tetap di Google Sheets lewat Apps Script yang sama — tanpa backend baru, tanpa mengubah struktur sheet.
 
-## Fitur
+- Produksi: https://sweetnation-web.vercel.app
+- Repo: https://github.com/muhammad1510520253/sweetnation-web
 
-- **Login** — autentikasi ke Google Apps Script (sheet `akun`)
-- **Beranda** — ringkasan pesanan (Antrian / Proses / Siap / Selesai), pemasukan per metode bayar, daftar menu
-- **Menu** — semua produk + pencarian, tap untuk langsung membuat pesanan
-- **Transaksi** — daftar per tanggal, filter status, tambah transaksi, detail + struk siap cetak
-- **Stok** — daftar bahan, filter status (Habis / Sedikit / Banyak), tambah & ubah stok
-- **Akun** — profil, refresh cache, test printer, statistik penjualan (grafik + tabel), logout
+## 1. Planning
 
-## Stack
+| Fase | Isi | Status |
+|---|---|---|
+| 1. Fondasi | Vite + React + TS, auth, routing, layout mobile-first | selesai |
+| 2. Operasional | Beranda, menu, transaksi (list, filter, detail, ubah status), stok, statistik | selesai |
+| 3. Cetak | Pengaturan printer, struk 58/80 mm, pratinjau, cetak otomatis setelah simpan | selesai |
+| 4. Performa | Code splitting per route, cache katalog, header cache aset | selesai |
+| 5. Lanjutan | Bluetooth ESC/POS, PWA offline, foto produk, export laporan | belum |
 
-- React + TypeScript
-- Vite
-- react-router-dom
-- lucide-react (ikon)
-- CSS murni (tanpa framework UI) — tema pink `#F395BE`, font Chivo
+## 2. Fitur
 
-## Menjalankan
+### Sudah jalan
+
+**Auth** — login ke sheet `akun`, sesi di `localStorage`, guard route ke `/login`.
+
+**Beranda** — pesanan hari ini per status (Antrian/Proses/Siap/Selesai), omzet, akses cepat transaksi baru.
+
+**Menu** — 75 produk dari sheet `produk`, pencarian, gambar lazy load.
+
+**Transaksi** — filter tanggal + status; form (pilih menu, jumlah, diskon per item & transaksi, bayar, kirim, alamat, keterangan); detail + ubah status berurutan sampai Selesai.
+
+**Stok** — 50 bahan, pencarian, filter Habis/Sedikit/Banyak, tambah & ubah. Tahan data kotor: `satuan` yang tersimpan sebagai angka (`200`) dinormalisasi, tidak lagi membuat halaman blank.
+
+**Statistik** — total pesanan, omzet, rincian per tanggal dari `summary`.
+
+**Pengaturan Printer** (`/settings`)
+- Kertas 58 mm (32 kolom) / 80 mm (48 kolom)
+- Header (baris pertama = nama toko), footer, salinan 1–3
+- Pratinjau struk real-time
+- Test Print
+- Cetak otomatis setelah simpan transaksi
+- Tersimpan di `localStorage` (`sweetnation.settings`)
+
+**Cetak struk** — tombol printer di detail transaksi. HTML struk dibuat sendiri (`src/receipt.ts`), dicetak lewat iframe tersembunyi dengan `@page size: 58mm|80mm auto`, jadi ukuran kertas ikut setting dan dialog print tidak menutupi UI.
+
+**Deploy** — push/merge ke `main` → GitHub Actions → `vercel deploy --prod`; SPA rewrite ke `index.html`.
+
+### Belum dikerjakan
+
+| Fitur | Catatan |
+|---|---|
+| Printer Bluetooth ESC/POS langsung | Browser tidak bisa Bluetooth klasik (SPP). Opsi: Web Bluetooth (BLE, Chrome) atau WebUSB. Sekarang lewat dialog browser + driver OS. |
+| PWA / offline | Butuh service worker + cache API. |
+| Foto produk & upload | Sheet `produk` hanya menyimpan URL gambar. |
+| Export laporan (CSV/PDF) | Statistik masih tampilan layar. |
+| Edit/hapus transaksi | API hanya menyediakan tambah + ubah status. |
+| Manajemen akun / hak akses | `hak_akses` baru ditampilkan, belum membatasi menu. |
+| Form stok lengkap | Form web lebih ringkas dari `stock_form_page.dart`. |
+| Notifikasi pesanan baru | Belum ada push; butuh polling/websocket. |
+
+## 3. Stack & struktur
+
+React + TypeScript, Vite, react-router-dom, lucide-react, CSS murni (tanpa framework UI), tema pink `#F395BE`, font Chivo.
+
+```
+src/
+  api.ts        wrapper Apps Script (GET/POST) + helper rupiah & tanggal
+  auth.tsx      konteks login/logout (localStorage)
+  store.tsx     cache produk & konfigurasi
+  settings.ts   setting printer (localStorage)
+  receipt.ts    builder teks struk + cetak via iframe
+  ui.tsx        toast, modal, spinner, empty state
+  App.tsx       router + shell (sidebar desktop / bottom nav mobile)
+  pages/        Login, Home, Menu, Transactions, TransactionForm,
+                TransactionDetail, Stock, Profile, Statistic, Settings
+```
+
+## 4. Optimasi
+
+**Loading data**
+- Produk + konfigurasi diambil paralel (`Promise.all`) saat login.
+- Katalog di-cache di `localStorage`, tampil instan saat app dibuka; refetch hanya saat cache kosong atau tombol *Refresh Cache*.
+- Code splitting per route (`React.lazy`): bundle awal 303 kB → 264 kB (gzip 94 kB → 84 kB).
+- Cache aset permanen: `/assets/*` immutable 1 tahun, `index.html` must-revalidate.
+- Gambar `loading="lazy"`, tanpa polling — request hanya saat halaman dibuka atau aksi user.
+
+**Desain**
+- Mobile-first, 390 px tanpa horizontal scroll, target sentuh ≥ 40 px.
+- Bottom nav 5 item di HP, sidebar di ≥ 900 px.
+- Warna & radius konsisten via CSS variable; CSS total < 10 kB.
+- Struk pakai monospace + kolom tetap agar rapi di printer thermal.
+- Toast 2,6 s, modal tutup dengan Esc/klik luar, state kosong & loading selalu ada.
+
+## 5. Menjalankan
 
 ```bash
 npm install
 npm run dev      # http://localhost:5173
-npm run build    # output ke dist/
+npm run build    # tsc -b && vite build → dist/
+npm run preview
 ```
 
-## Deploy
+## 6. Deploy
 
-Build statis. `vercel.json` sudah berisi rewrite SPA agar route seperti `/transactions` tidak 404.
+Otomatis: merge/push ke `main` → `.github/workflows/deploy.yml` → `vercel deploy --prod`.
+Secret repo: `VERCEL_TOKEN`, `VERCEL_ORG_ID`, `VERCEL_PROJECT_ID`.
 
-```bash
-vercel --prod        # atau drag & drop folder dist/ ke Netlify/Vercel
-```
+Manual: `vercel --prod`
 
-## Struktur
+## 7. Catatan cetak
 
-```
-src/
-  api.ts        # wrapper REST Apps Script (GET/POST) + helper rupiah & tanggal
-  auth.tsx      # konteks login/logout (localStorage)
-  store.tsx     # cache produk & konfigurasi
-  ui.tsx        # toast, modal, spinner, empty state
-  App.tsx       # router + shell (sidebar desktop / bottom nav mobile)
-  pages/        # Login, Home, Menu, Transactions, TransactionForm, TransactionDetail, Stock, Profile, Statistic
-```
+1. **Akun → Pengaturan Printer**, pilih 58/80 mm, atur header/footer, simpan.
+2. **Test Print** → di dialog browser pilih printer thermal, margin `None`, matikan *Headers and footers*.
+3. Struk dari detail transaksi (atau otomatis setelah simpan bila diaktifkan) memakai setting yang sama.
 
-## Catatan data
+## 8. Catatan data
 
-Semua data diambil langsung dari Apps Script yang dipakai aplikasi Flutter:
-`.../exec?sheet=produk|akun|transaksi|transaksi-item|stok|konfigurasi|summary`.
-Write memakai POST JSON (`isUpdate` / `isDelete` sesuai kontrak aplikasi asli).
+Data dari Apps Script aplikasi Flutter: `.../exec?sheet=produk|akun|transaksi|transaksi-item|stok|konfigurasi|summary`. Write via POST JSON (`isUpdate` / `isDelete` sesuai kontrak aplikasi asli).

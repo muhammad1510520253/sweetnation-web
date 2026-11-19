@@ -5,6 +5,8 @@ import { api, ddMMyyyy, hhmmss, rupiah, ymd, type Product } from '../api';
 import { useAuth } from '../auth';
 import { useStore } from '../store';
 import { Modal, useToast } from '../ui';
+import { printReceipt } from '../receipt';
+import { loadSettings } from '../settings';
 
 type Row = { key: string; productId: string; jumlah: number; diskon: number };
 
@@ -13,7 +15,7 @@ const DELIVERIES = ['AMBIL', 'COD', 'KURIR', 'PO'];
 
 export default function TransactionForm() {
   const { user } = useAuth();
-  const { products } = useStore();
+  const { products, config } = useStore();
   const { show } = useToast();
   const nav = useNavigate();
   const location = useLocation() as { state?: { productId?: string } };
@@ -88,6 +90,8 @@ export default function TransactionForm() {
     setSaving(true);
     try {
       await api.createTransaction(user.user_id, payload);
+      const settings = loadSettings();
+      if (settings.autoPrint) printReceipt(payload, payload.items, config, settings);
       show('Transaksi berhasil ditambahkan', 'success');
       nav('/transactions', { replace: true });
     } catch (e) {
