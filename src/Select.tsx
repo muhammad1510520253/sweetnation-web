@@ -1,5 +1,6 @@
-import { useEffect, useId, useLayoutEffect, useRef, useState } from 'react';
+import { useEffect, useId, useRef, useState } from 'react';
 import { Check, ChevronDown } from 'lucide-react';
+import { Popover } from './Popover';
 
 export type Opt<T> = { value: T; label: string };
 
@@ -27,10 +28,8 @@ export function Select<T extends string | number>({
 }: Props<T>) {
   const [open, setOpen] = useState(false);
   const [cursor, setCursor] = useState(0);
-  const [up, setUp] = useState(false);
   const wrap = useRef<HTMLDivElement>(null);
   const btn = useRef<HTMLButtonElement>(null);
-  const list = useRef<HTMLDivElement>(null);
   const listId = useId();
 
   const current = options.find((o) => o.value === value) ?? options[0];
@@ -38,17 +37,14 @@ export function Select<T extends string | number>({
   useEffect(() => {
     if (!open) return;
     const onDown = (e: MouseEvent) => {
-      if (!wrap.current?.contains(e.target as Node)) setOpen(false);
+      const t = e.target as HTMLElement;
+      if (wrap.current?.contains(t)) return;
+      // klik di panel portal ditangani item (pilih/tutup); klik lain = tutup
+      if (t.closest?.('.pop')) return;
+      setOpen(false);
     };
     document.addEventListener('mousedown', onDown);
     return () => document.removeEventListener('mousedown', onDown);
-  }, [open]);
-
-  useLayoutEffect(() => {
-    if (!open || !btn.current || !list.current) return;
-    const b = btn.current.getBoundingClientRect();
-    const h = list.current.offsetHeight;
-    setUp(b.bottom + h + 12 > window.innerHeight && b.top > h + 12);
   }, [open]);
 
   const openList = () => {
@@ -109,14 +105,8 @@ export function Select<T extends string | number>({
         <ChevronDown size={small ? 14 : 16} className={open ? 'dd-chev up' : 'dd-chev'} />
       </button>
 
-      {open && (
-        <div
-          className={`dd-list ${up ? 'up' : ''}`}
-          role="listbox"
-          id={listId}
-          aria-label={ariaLabel}
-          ref={list}
-        >
+      <Popover open={open} anchor={btn} align={small ? 'end' : 'start'} width={small ? 150 : undefined}>
+        <div className="dd-list" role="listbox" id={listId} aria-label={ariaLabel}>
           {options.map((o, i) => (
             <button
               type="button"
@@ -133,7 +123,7 @@ export function Select<T extends string | number>({
             </button>
           ))}
         </div>
-      )}
+      </Popover>
     </div>
   );
 }

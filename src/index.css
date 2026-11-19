@@ -337,10 +337,10 @@ img { display: block; }
 .dd-label { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .dd-chev { flex: 0 0 auto; transition: transform 0.15s; }
 .dd-chev.up { transform: rotate(180deg); }
+.pop { position: fixed; z-index: 300; }
 .dd-list {
-  position: absolute; z-index: 60; left: 0; right: 0; top: calc(100% + 8px);
   background: var(--white); border: var(--bd); border-radius: 12px;
-  box-shadow: var(--shadow-sm); padding: 6px; max-height: 260px; overflow: auto;
+  box-shadow: var(--shadow-sm); padding: 6px; max-height: min(260px, 55vh); overflow: auto;
   animation: ddIn 0.12s ease-out;
 }
 @keyframes ddIn { from { opacity: 0; transform: translateY(-4px); } }
@@ -353,8 +353,29 @@ img { display: block; }
 .dd-item.cur { background: var(--pink-soft); }
 .dd-item.on { background: var(--yellow); border-color: var(--ink); }
 .dd-sm .dd-btn { height: 40px; padding: 0 10px; font-size: 12px; font-weight: 800; box-shadow: 2px 2px 0 var(--ink); }
-.dd-list.up { top: auto; bottom: calc(100% + 8px); }
-.dd-sm .dd-list { left: auto; right: 0; min-width: 132px; }
+.dd-sm .dd-list { min-width: 132px; }
+
+/* ---------- date picker kustom ---------- */
+.dt { position: relative; width: 100%; }
+.dt-btn { gap: 10px; }
+.dt .dd-label { flex: 1; }
+.dt-ico { flex: 0 0 auto; }
+.toolbar-date { flex: 0 0 auto !important; width: 178px; }
+.home-date { max-width: 210px; margin-bottom: 16px; }
+.cal { background: var(--white); border: var(--bd); border-radius: 14px; box-shadow: var(--shadow-sm); padding: 12px; animation: ddIn 0.12s ease-out; }
+.cal-head { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 10px; }
+.cal-head strong { font-size: 13px; font-weight: 900; letter-spacing: 0.2px; }
+.cal-nav { width: 30px; height: 30px; display: grid; place-items: center; border: 2px solid var(--ink); border-radius: 8px; background: var(--white); cursor: pointer; box-shadow: 2px 2px 0 var(--ink); }
+.cal-nav:active { transform: translate(1px, 1px); box-shadow: 1px 1px 0 var(--ink); }
+.cal-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 2px; }
+.cal-dow { margin-bottom: 4px; }
+.cal-dow span { text-align: center; font-size: 10px; font-weight: 900; color: var(--grey); text-transform: uppercase; }
+.cal-day { height: 34px; border: 2px solid transparent; border-radius: 8px; background: transparent; color: var(--ink); font-size: 12.5px; font-weight: 700; cursor: pointer; }
+.cal-day:hover { background: var(--pink-soft); }
+.cal-day.today { border-color: var(--ink); border-style: dashed; }
+.cal-day.on { background: var(--yellow); border-color: var(--ink); border-style: solid; box-shadow: 2px 2px 0 var(--ink); }
+.cal-day:disabled { opacity: 0.3; cursor: not-allowed; }
+.cal-foot { display: flex; justify-content: space-between; gap: 8px; margin-top: 10px; padding-top: 10px; border-top: 2px dashed rgba(11, 11, 11, 0.2); }
 
 
 /* ---------- modal ---------- */

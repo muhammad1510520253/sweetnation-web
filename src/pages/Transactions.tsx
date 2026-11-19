@@ -4,6 +4,7 @@ import { Plus } from 'lucide-react';
 import { api, ddMMyyyy, rupiah, type Transaction } from '../api';
 import { useAuth } from '../auth';
 import { Pager, usePaged } from '../Pagination';
+import { DatePicker } from '../DatePicker';
 import { Empty, Spinner } from '../ui';
 
 const STATUS = ['Semua', 'Antrian', 'Proses', 'Siap', 'Selesai'];
@@ -50,12 +51,11 @@ export default function Transactions() {
         </div>
 
         <div className="toolbar">
-          <input
-            className="input"
-            type="date"
+          <DatePicker
             value={date}
-            onChange={(e) => setDate(e.target.value)}
-            aria-label="Tanggal transaksi"
+            onChange={setDate}
+            ariaLabel="Tanggal transaksi"
+            className="toolbar-date"
           />
           <button className="btn" style={{ flex: '0 0 auto' }} onClick={() => nav('/transactions/new')}>
             <Plus size={16} /> Baru

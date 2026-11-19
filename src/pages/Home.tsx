@@ -4,6 +4,7 @@ import { RefreshCw } from 'lucide-react';
 import { api, ddMMyyyy, rupiah, type Transaction } from '../api';
 import { useAuth } from '../auth';
 import { useStore } from '../store';
+import { DatePicker } from '../DatePicker';
 import { Empty, Spinner } from '../ui';
 
 type Summary = {
@@ -97,13 +98,7 @@ export default function Home() {
 
       <div className="content" style={{ paddingTop: 0 }}>
         <div className="page-max">
-          <input
-            className="input"
-            type="date"
-            value={date}
-            onChange={(e) => setDate(e.target.value)}
-            style={{ maxWidth: 220 }}
-          />
+          <DatePicker value={date} onChange={setDate} ariaLabel="Tanggal" className="home-date" />
 
           {loading ? (
             <Spinner />
