@@ -273,12 +273,17 @@ img { display: block; }
 .filters::-webkit-scrollbar-thumb { background: var(--ink); }
 .filters .btn { flex: 0 0 auto; }
 .search-wrap { position: relative; flex: 1 1 220px; }
+.page-max > .search-wrap { flex: 0 0 auto; }
 .search-wrap svg { position: absolute; left: 12px; top: 12px; pointer-events: none; }
 .search-wrap .input { padding-left: 36px; }
 
 /* ---------- pagination ---------- */
+.pager-slot {
+  margin-top: 20px; flex: 1 0 auto;
+  display: flex; flex-direction: column; justify-content: flex-end;
+}
 .pager {
-  margin-top: auto; padding: 14px 12px 12px;
+  padding: 14px 12px 12px;
   display: flex; flex-direction: column; gap: 10px;
   background: var(--white); border: var(--bd); border-radius: var(--radius);
   box-shadow: var(--shadow-sm);
@@ -500,3 +505,14 @@ table.simple td.num, table.simple th.num { text-align: right; font-variant-numer
 .chart-tip.below { transform: translate(-50%, 24%); }
 .chart-tip strong { font-size: 11px; letter-spacing: 0.2px; }
 .chart-tip span:last-child { color: var(--yellow); }
+
+/* ---------- form transaksi: ringkasan menempel bawah ---------- */
+.tx-foot {
+  position: sticky; bottom: 58px; z-index: 15;
+  margin-top: 16px; padding-top: 10px;
+  background: var(--paper);
+}
+.tx-foot .card { margin: 0; }
+@media (min-width: 900px) {
+  .tx-foot { bottom: 0; }
+}

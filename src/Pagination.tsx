@@ -61,6 +61,7 @@ export function Pager({
   const to = Math.min(page * size, total);
 
   return (
+    <div className="pager-slot">
     <nav className="pager" aria-label="Navigasi halaman">
       <p className="pager-count">
         <strong>
@@ -126,5 +127,6 @@ export function Pager({
         />
       </div>
     </nav>
+    </div>
   );
 }

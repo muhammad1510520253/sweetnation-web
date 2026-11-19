@@ -9,7 +9,7 @@ import { printReceipt } from '../receipt';
 import { loadSettings } from '../settings';
 import { Select } from '../Select';
 
-type Row = { key: string; productId: string; jumlah: number; diskon: number };
+type Row = { key: string; productId: string; jumlah: number; diskon: string };
 
 const PAYMENTS = ['CASH', 'TRANSFER', 'QRIS', 'OVO', 'DANA', 'GOPAY'];
 const DELIVERIES = ['AMBIL', 'COD', 'KURIR', 'PO'];
@@ -26,13 +26,14 @@ export default function TransactionForm() {
   const [keterangan, setKeterangan] = useState('');
   const [payment, setPayment] = useState('CASH');
   const [delivery, setDelivery] = useState('AMBIL');
-  const [diskon, setDiskon] = useState(0);
+  const [diskon, setDiskon] = useState('');
   const [rows, setRows] = useState<Row[]>(() =>
-    location.state?.productId ? [{ key: crypto.randomUUID(), productId: location.state.productId, jumlah: 1, diskon: 0 }] : [],
+    location.state?.productId ? [{ key: crypto.randomUUID(), productId: location.state.productId, jumlah: 1, diskon: '' }] : [],
   );
   const [picker, setPicker] = useState(false);
   const [pq, setPq] = useState('');
   const [ask, setAsk] = useState(false);
+  const [delKey, setDelKey] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
 
   const picked = useMemo(() => {
@@ -49,15 +50,16 @@ export default function TransactionForm() {
 
   const subTotal = rows.reduce((sum, r) => {
     const p = productMap.get(r.productId);
-    return sum + (p ? Number(p.harga) * r.jumlah - r.diskon : 0);
+    return sum + (p ? Number(p.harga) * r.jumlah - (Number(r.diskon) || 0) : 0);
   }, 0);
-  const total = Math.max(subTotal - diskon, 0);
+  const diskonNum = Number(diskon) || 0;
+  const total = Math.max(subTotal - diskonNum, 0);
 
   const addRow = (id: string) => {
     setRows((prev) => {
       const found = prev.find((r) => r.productId === id);
       if (found) return prev.map((r) => (r.productId === id ? { ...r, jumlah: r.jumlah + 1 } : r));
-      return [...prev, { key: crypto.randomUUID(), productId: id, jumlah: 1, diskon: 0 }];
+      return [...prev, { key: crypto.randomUUID(), productId: id, jumlah: 1, diskon: '' }];
     });
     setPicker(false);
   };
@@ -83,7 +85,7 @@ export default function TransactionForm() {
       metode_pengiriman: delivery,
       alamat: alamat.trim(),
       sub_total: subTotal,
-      diskon,
+      diskon: diskonNum,
       total,
       status: 'Antrian',
       created_by: user.nama,
@@ -98,7 +100,7 @@ export default function TransactionForm() {
           produk: productMap.get(r.productId)!.nama,
           jumlah: r.jumlah,
           harga: Number(productMap.get(r.productId)!.harga),
-          diskon: r.diskon,
+          diskon: Number(r.diskon) || 0,
         })),
     };
 
@@ -163,7 +165,7 @@ export default function TransactionForm() {
                 <div className="card" key={r.key}>
                   <div style={{ display: 'flex', justifyContent: 'space-between', gap: 8 }}>
                     <strong style={{ fontSize: 14 }}>{p.nama}</strong>
-                    <button className="icon-btn" onClick={() => setRows((prev) => prev.filter((x) => x.key !== r.key))}>
+                    <button className="icon-btn" onClick={() => setDelKey(r.key)} aria-label={`Hapus ${p.nama}`}>
                       <Trash2 size={14} />
                     </button>
                   </div>
@@ -186,20 +188,20 @@ export default function TransactionForm() {
                       <label>Diskon (Rp)</label>
                       <input
                         className="input"
-                        type="number"
-                        min={0}
+                        type="text"
+                        inputMode="numeric"
+                        placeholder="0"
                         value={r.diskon}
-                        onChange={(e) =>
-                          setRows((prev) =>
-                            prev.map((x) => (x.key === r.key ? { ...x, diskon: Math.max(0, Number(e.target.value) || 0) } : x)),
-                          )
-                        }
+                        onChange={(e) => {
+                          const v = e.target.value.replace(/\D/g, '');
+                          setRows((prev) => prev.map((x) => (x.key === r.key ? { ...x, diskon: v } : x)));
+                        }}
                       />
                     </div>
                   </div>
                   <div className="kv" style={{ marginTop: 8 }}>
                     <span>Subtotal</span>
-                    <span>{rupiah(Number(p.harga) * r.jumlah - r.diskon)}</span>
+                    <span>{rupiah(Number(p.harga) * r.jumlah - (Number(r.diskon) || 0))}</span>
                   </div>
                 </div>
               );
@@ -207,16 +209,18 @@ export default function TransactionForm() {
           </div>
         )}
 
-        <div className="card" style={{ marginTop: 16 }}>
+        <div className="tx-foot">
+        <div className="card">
           <div className="kv"><span>Sub Total</span><span>{rupiah(subTotal)}</span></div>
           <div className="field" style={{ marginTop: 8 }}>
             <label>Diskon Transaksi (Rp)</label>
             <input
               className="input"
-              type="number"
-              min={0}
+              type="text"
+              inputMode="numeric"
+              placeholder="0"
               value={diskon}
-              onChange={(e) => setDiskon(Math.max(0, Number(e.target.value) || 0))}
+              onChange={(e) => setDiskon(e.target.value.replace(/\D/g, ''))}
             />
           </div>
           <div className="divider" />
@@ -226,9 +230,15 @@ export default function TransactionForm() {
           </div>
         </div>
 
-        <button className="btn block" style={{ marginTop: 16 }} onClick={askSubmit} disabled={saving}>
-          {saving ? 'Menyimpan…' : 'Simpan Transaksi'}
-        </button>
+        <div className="row" style={{ marginTop: 12 }}>
+          <button className="btn ghost" style={{ flex: '0 0 38%' }} onClick={() => nav('/transactions')} disabled={saving}>
+            Batal
+          </button>
+          <button className="btn" style={{ flex: 1 }} onClick={askSubmit} disabled={saving}>
+            {saving ? 'Menyimpan…' : 'Simpan Transaksi'}
+          </button>
+        </div>
+        </div>
       </div>
 
       {picker && (
@@ -260,6 +270,25 @@ export default function TransactionForm() {
           </div>
           )}
         </Modal>
+      )}
+
+      {delKey && (
+        <Confirm
+          title="Hapus Item?"
+          message={
+            <>
+              <strong>{productMap.get(rows.find((r) => r.key === delKey)?.productId ?? '')?.nama ?? 'Item'}</strong> akan
+              dihapus dari pesanan.
+            </>
+          }
+          confirmLabel="Hapus"
+          danger
+          onConfirm={() => {
+            setRows((prev) => prev.filter((x) => x.key !== delKey));
+            setDelKey(null);
+          }}
+          onCancel={() => setDelKey(null)}
+        />
       )}
 
       {ask && (

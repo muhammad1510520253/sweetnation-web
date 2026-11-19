@@ -81,11 +81,19 @@ export default function StatisticPage() {
         <div className="row" style={{ marginBottom: 16 }}>
           <div className="field" style={{ marginBottom: 0 }}>
             <label>Dari Tanggal</label>
-            <DatePicker value={from} onChange={setFrom} ariaLabel="Dari tanggal" />
+            <DatePicker
+              value={from}
+              onChange={(v) => {
+                setFrom(v);
+                if (v && to && v > to) setTo(v);
+              }}
+              ariaLabel="Dari tanggal"
+              max={to || undefined}
+            />
           </div>
           <div className="field" style={{ marginBottom: 0 }}>
             <label>Sampai Tanggal</label>
-            <DatePicker value={to} onChange={setTo} ariaLabel="Sampai tanggal" max={from || undefined} />
+            <DatePicker value={to} onChange={setTo} ariaLabel="Sampai tanggal" min={from || undefined} />
           </div>
         </div>
 

@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, BarChart3, LogOut, Printer, RefreshCw, Shield, User } from 'lucide-react';
+import { BarChart3, LogOut, Printer, RefreshCw, Shield, User } from 'lucide-react';
 import { useAuth } from '../auth';
 import { useStore } from '../store';
 import { Modal, useToast } from '../ui';
@@ -16,7 +16,6 @@ export default function Profile() {
     <div className="content">
       <div className="page-max" style={{ maxWidth: 560 }}>
         <div className="page-head">
-          <button className="icon-btn" onClick={() => nav(-1)} aria-label="Kembali"><ArrowLeft size={16} /></button>
           <h2 style={{ flex: 1 }}>Akun</h2>
         </div>
 

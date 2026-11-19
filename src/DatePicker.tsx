@@ -29,6 +29,7 @@ export function DatePicker({
   id,
   ariaLabel = 'Pilih tanggal',
   className = '',
+  min,
   max,
 }: {
   value: string;
@@ -36,6 +37,7 @@ export function DatePicker({
   id?: string;
   ariaLabel?: string;
   className?: string;
+  min?: string;
   max?: string;
 }) {
   const [open, setOpen] = useState(false);
@@ -140,7 +142,10 @@ export function DatePicker({
                   className={`cal-day ${toYmd(new Date(view.y, view.m, day)) === value ? 'on' : ''} ${
                     toYmd(new Date(view.y, view.m, day)) === today ? 'today' : ''
                   }`}
-                  disabled={!!max && toYmd(new Date(view.y, view.m, day)) > max}
+                  disabled={
+                    (!!max && toYmd(new Date(view.y, view.m, day)) > max) ||
+                    (!!min && toYmd(new Date(view.y, view.m, day)) < min)
+                  }
                   onClick={() => pick(day)}
                 >
                   {day}
