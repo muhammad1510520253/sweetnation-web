@@ -43,10 +43,22 @@ export function StoreProvider({ children }: { children: ReactNode }) {
     setLoading(true);
     setError(null);
     try {
-      const [products, config] = await Promise.all([
-        api.products(user.user_id),
-        api.configuration(user.user_id).catch(() => [] as Configuration[]),
-      ]);
+      let products: Product[] = [];
+      let config: Configuration[] = [];
+
+      try {
+        // Satu round trip: produk + konfigurasi.
+        const data = await api.bootstrap(user.user_id);
+        products = data?.produk ?? [];
+        config = data?.konfigurasi ?? [];
+      } catch {
+        // Fallback kalau Apps Script belum versi optimized.
+        [products, config] = await Promise.all([
+          api.products(user.user_id),
+          api.configuration(user.user_id).catch(() => [] as Configuration[]),
+        ]);
+      }
+
       const next = { products: products ?? [], config: config?.[0] ?? null };
       localStorage.setItem(CACHE_KEY, JSON.stringify(next));
       setCache(next);

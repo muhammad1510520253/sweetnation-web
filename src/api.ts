@@ -94,6 +94,9 @@ const post = <T,>(sheet: string, params: Record<string, string | number | undefi
 export const api = {
   login: (email: string, password: string) =>
     get<User>('akun', { email: email.trim().toLowerCase(), password: password.trim() }),
+  // Satu request untuk produk + konfigurasi (script optimized: sheet=bootstrap).
+  bootstrap: (userId: string) =>
+    get<{ produk: Product[]; konfigurasi: Configuration[] }>('bootstrap', { userId }),
   products: (userId: string) => get<Product[]>('produk', { userId }),
   configuration: (userId: string) => get<Configuration[]>('konfigurasi', { userId }),
   transactions: (userId: string, date: string) =>
