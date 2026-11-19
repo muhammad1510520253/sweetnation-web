@@ -210,12 +210,16 @@ export default function TransactionForm() {
         )}
 
         <div className="tx-foot">
-        <div className="card">
-          <div className="kv"><span>Sub Total</span><span>{rupiah(subTotal)}</span></div>
-          <div className="field" style={{ marginTop: 8 }}>
-            <label>Diskon Transaksi (Rp)</label>
+        <div className="card tx-sum">
+          <div className="tx-sum-cell">
+            <span className="tx-sum-label">Sub Total</span>
+            <span className="tx-sum-value">{rupiah(subTotal)}</span>
+          </div>
+          <div className="tx-sum-cell">
+            <label className="tx-sum-label" htmlFor="diskon-tx">Diskon (Rp)</label>
             <input
-              className="input"
+              id="diskon-tx"
+              className="input tx-sum-input"
               type="text"
               inputMode="numeric"
               placeholder="0"
@@ -223,14 +227,13 @@ export default function TransactionForm() {
               onChange={(e) => setDiskon(e.target.value.replace(/\D/g, ''))}
             />
           </div>
-          <div className="divider" />
-          <div className="kv" style={{ fontSize: 16 }}>
-            <span style={{ fontWeight: 600, color: '#111' }}>Total</span>
-            <span style={{ fontWeight: 700, color: 'var(--pink-dark)' }}>{rupiah(total)}</span>
+          <div className="tx-sum-cell tx-sum-total">
+            <span className="tx-sum-label">Total</span>
+            <span className="tx-sum-value">{rupiah(total)}</span>
           </div>
         </div>
 
-        <div className="row" style={{ marginTop: 12 }}>
+        <div className="row" style={{ marginTop: 10 }}>
           <button className="btn ghost" style={{ flex: '0 0 38%' }} onClick={() => nav('/transactions')} disabled={saving}>
             Batal
           </button>

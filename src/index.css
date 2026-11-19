@@ -516,3 +516,23 @@ table.simple td.num, table.simple th.num { text-align: right; font-variant-numer
 @media (min-width: 900px) {
   .tx-foot { bottom: 0; }
 }
+
+.tx-sum {
+  display: grid; grid-template-columns: 1fr 0.85fr 1.15fr; gap: 8px;
+  padding: 9px 12px; align-items: end;
+}
+.tx-sum-cell { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.tx-sum-label {
+  font-size: 10px; font-weight: 800; text-transform: uppercase;
+  letter-spacing: 0.4px; color: var(--grey);
+}
+.tx-sum-value {
+  font-size: 15px; font-weight: 800; line-height: 20px;
+  font-variant-numeric: tabular-nums; padding-bottom: 6px;
+}
+.tx-sum-input {
+  height: 32px; padding: 0 8px; font-size: 14px;
+  box-shadow: 2px 2px 0 rgba(11,11,11,0.15);
+}
+.tx-sum-total { text-align: right; }
+.tx-sum-total .tx-sum-value { font-size: 16px; line-height: 20px; color: var(--pink-dark); white-space: nowrap; }
