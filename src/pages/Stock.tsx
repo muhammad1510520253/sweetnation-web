@@ -20,6 +20,13 @@ const stamp = () => {
   return `ST${d.getFullYear()}${p(d.getMonth() + 1)}${p(d.getDate())}${p(d.getHours())}${p(d.getMinutes())}${p(d.getSeconds())}`;
 };
 
+const satuanText = (v?: string | number | null) => String(v ?? '').trim();
+const qtyOf = (v?: string | number | null) => satuanText(v).split(' ')[0] ?? '';
+const unitOf = (v?: string | number | null) => {
+  const parts = satuanText(v).split(' ').filter(Boolean);
+  return parts.length > 1 ? parts.slice(1).join(' ') : 'unit';
+};
+
 type FormState = { id?: string; nama: string; jumlah: string; unit: string; harga: string; status: string };
 const emptyForm: FormState = { nama: '', jumlah: '', unit: 'pcs', harga: '', status: 'Banyak' };
 
@@ -55,7 +62,7 @@ export default function StockPage() {
     return rows.filter(
       (r) =>
         (filter === 'Semua' || (r.status ?? 'Banyak') === filter) &&
-        (!key || r.nama.toLowerCase().includes(key)),
+        (!key || (r.nama ?? '').toLowerCase().includes(key)),
     );
   }, [rows, q, filter]);
 
@@ -94,7 +101,8 @@ export default function StockPage() {
   };
 
   const openEdit = (s: Stock) => {
-    const [qty, unit] = (s.satuan ?? '').split(' ');
+    const qty = qtyOf(s.satuan);
+    const unit = unitOf(s.satuan);
     setForm({
       id: s.stok_id,
       nama: s.nama,
@@ -140,7 +148,7 @@ export default function StockPage() {
                 <div className="info">
                   <div className="nm">{s.nama}</div>
                   <div className="meta">
-                    {s.satuan} • {rupiah(s.harga)} • {rupiah(s.harga_satuan)}/{s.satuan?.split(' ')[1] ?? 'unit'}
+                    {satuanText(s.satuan)} • {rupiah(s.harga)} • {rupiah(s.harga_satuan)}/{unitOf(s.satuan)}
                   </div>
                 </div>
                 <span className={`chip ${(s.status ?? 'Banyak').toLowerCase()}`}>{s.status ?? 'Banyak'}</span>

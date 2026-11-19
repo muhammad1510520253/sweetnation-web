@@ -37,7 +37,7 @@ export type Stock = {
   stok_id: string;
   nama: string;
   harga: number;
-  satuan: string;
+  satuan: string | number;
   harga_satuan: number;
   status: string;
 };
