@@ -2,6 +2,7 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 import { Pencil, Plus, Search } from 'lucide-react';
 import { api, rupiah, type Stock } from '../api';
 import { useAuth } from '../auth';
+import { Pager, usePaged } from '../Pagination';
 import { Empty, Modal, Spinner, useToast } from '../ui';
 
 const UNITS = [
@@ -66,6 +67,8 @@ export default function StockPage() {
     );
   }, [rows, q, filter]);
 
+  const paged = usePaged(shown, { size: 20, resetKey: `${q}|${filter}` });
+
   const hargaSatuan = useMemo(() => {
     if (!form) return 0;
     const jumlah = Number(form.jumlah) || 0;
@@ -124,14 +127,14 @@ export default function StockPage() {
           </button>
         </div>
 
-        <div style={{ position: 'relative', marginBottom: 12 }}>
-          <Search size={16} style={{ position: 'absolute', left: 12, top: 13, color: '#aaa' }} />
-          <input className="input" style={{ paddingLeft: 34 }} placeholder="Cari stok…" value={q} onChange={(e) => setQ(e.target.value)} />
+        <div className="search-wrap" style={{ marginBottom: 12 }}>
+          <Search size={16} style={{ color: '#555' }} />
+          <input className="input" placeholder="Cari stok…" value={q} onChange={(e) => setQ(e.target.value)} />
         </div>
 
-        <div style={{ display: 'flex', gap: 8, overflowX: 'auto', paddingBottom: 4, marginBottom: 14 }}>
+        <div className="filters">
           {['Semua', ...STATUSES].map((s) => (
-            <button key={s} className={`btn xs ${filter === s ? '' : 'ghost'}`} style={{ flex: '0 0 auto' }} onClick={() => setFilter(s)}>
+            <button key={s} className={`btn xs ${filter === s ? '' : 'ghost'}`} onClick={() => setFilter(s)}>
               {s}
             </button>
           ))}
@@ -142,20 +145,31 @@ export default function StockPage() {
         ) : shown.length === 0 ? (
           <Empty text="Belum ada data stok" />
         ) : (
-          <div className="list">
-            {shown.map((s) => (
-              <div className="stock-row" key={s.stok_id}>
-                <div className="info">
-                  <div className="nm">{s.nama}</div>
-                  <div className="meta">
-                    {satuanText(s.satuan)} • {rupiah(s.harga)} • {rupiah(s.harga_satuan)}/{unitOf(s.satuan)}
+          <>
+            <div className="list grid-2">
+              {paged.slice.map((s) => (
+                <div className="stock-row" key={s.stok_id}>
+                  <div className="info">
+                    <div className="nm">{s.nama}</div>
+                    <div className="meta">
+                      {satuanText(s.satuan)} • {rupiah(s.harga)} • {rupiah(s.harga_satuan)}/{unitOf(s.satuan)}
+                    </div>
                   </div>
+                  <span className={`chip ${(s.status ?? 'Banyak').toLowerCase()}`}>{s.status ?? 'Banyak'}</span>
+                  <button className="icon-btn" onClick={() => openEdit(s)} aria-label={`Ubah ${s.nama}`}><Pencil size={14} /></button>
                 </div>
-                <span className={`chip ${(s.status ?? 'Banyak').toLowerCase()}`}>{s.status ?? 'Banyak'}</span>
-                <button className="icon-btn" onClick={() => openEdit(s)}><Pencil size={14} /></button>
-              </div>
-            ))}
-          </div>
+              ))}
+            </div>
+
+            <Pager
+              page={paged.page}
+              pages={paged.pages}
+              total={paged.total}
+              size={paged.size}
+              onPage={paged.setPage}
+              onSize={paged.setSize}
+            />
+          </>
         )}
       </div>
 

@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { Plus } from 'lucide-react';
 import { api, ddMMyyyy, rupiah, type Transaction } from '../api';
 import { useAuth } from '../auth';
+import { Pager, usePaged } from '../Pagination';
 import { Empty, Spinner } from '../ui';
 
 const STATUS = ['Semua', 'Antrian', 'Proses', 'Siap', 'Selesai'];
@@ -38,6 +39,7 @@ export default function Transactions() {
   }, [load]);
 
   const shown = status === 'Semua' ? rows : rows.filter((t) => t.status === status);
+  const paged = usePaged(shown, { size: 10, resetKey: `${date}|${status}` });
 
   return (
     <div className="content">
@@ -47,24 +49,24 @@ export default function Transactions() {
           <span className="sub">{shown.length} pesanan</span>
         </div>
 
-        <div className="row" style={{ marginBottom: 12 }}>
+        <div className="toolbar">
           <input
             className="input"
             type="date"
             value={date}
             onChange={(e) => setDate(e.target.value)}
+            aria-label="Tanggal transaksi"
           />
           <button className="btn" style={{ flex: '0 0 auto' }} onClick={() => nav('/transactions/new')}>
             <Plus size={16} /> Baru
           </button>
         </div>
 
-        <div style={{ display: 'flex', gap: 8, overflowX: 'auto', paddingBottom: 4, marginBottom: 14 }}>
+        <div className="filters">
           {STATUS.map((s) => (
             <button
               key={s}
               className={`btn xs ${status === s ? '' : 'ghost'}`}
-              style={{ flex: '0 0 auto' }}
               onClick={() => setStatus(s)}
             >
               {s}
@@ -79,29 +81,40 @@ export default function Transactions() {
         ) : shown.length === 0 ? (
           <Empty text="Belum ada transaksi di tanggal ini" />
         ) : (
-          <div className="list">
-            {shown.map((t) => (
-              <button
-                key={t.transaksi_id}
-                className="tx-card"
-                style={{ textAlign: 'left', border: 'none', cursor: 'pointer' }}
-                onClick={() => nav(`/transactions/${t.transaksi_id}`, { state: { tx: t } })}
-              >
-                <div className="tx-top">
-                  <div>
-                    <div className="tx-id">{t.transaksi_id}</div>
-                    <div className="tx-time">{txTime(t.created_at)}</div>
+          <>
+            <div className="list grid-2">
+              {paged.slice.map((t) => (
+                <button
+                  key={t.transaksi_id}
+                  className="tx-card"
+                  style={{ textAlign: 'left', cursor: 'pointer' }}
+                  onClick={() => nav(`/transactions/${t.transaksi_id}`, { state: { tx: t } })}
+                >
+                  <div className="tx-top">
+                    <div>
+                      <div className="tx-id">{t.transaksi_id}</div>
+                      <div className="tx-time">{txTime(t.created_at)}</div>
+                    </div>
+                    <span className={`chip status-${t.status}`}>{t.status}</span>
                   </div>
-                  <span className={`chip status-${t.status}`}>{t.status}</span>
-                </div>
-                <div className="tx-buyer">{t.nama_pembeli || '-'}</div>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                  <span className="chip soft">{t.metode_pembayaran}</span>
-                  <span className="tx-total">{rupiah(t.total)}</span>
-                </div>
-              </button>
-            ))}
-          </div>
+                  <div className="tx-buyer">{t.nama_pembeli || '-'}</div>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 10 }}>
+                    <span className="chip soft">{t.metode_pembayaran}</span>
+                    <span className="tx-total">{rupiah(t.total)}</span>
+                  </div>
+                </button>
+              ))}
+            </div>
+
+            <Pager
+              page={paged.page}
+              pages={paged.pages}
+              total={paged.total}
+              size={paged.size}
+              onPage={paged.setPage}
+              onSize={paged.setSize}
+            />
+          </>
         )}
       </div>
     </div>

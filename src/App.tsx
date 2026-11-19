@@ -30,10 +30,10 @@ function Shell() {
     <div className="app-shell">
       <aside className="sidebar">
         <div className="brand">
-          <img src="/logo.png" alt="Sweetnation" style={{ width: 40, height: 40, borderRadius: '50%', border: '2px solid var(--pink)' }} />
+          <img src="/logo.png" alt="Sweetnation" style={{ width: 40, height: 40, borderRadius: '50%' }} />
           <div>
-            <div style={{ fontWeight: 700, fontSize: 15 }}>Sweetnation</div>
-            <div style={{ fontSize: 10, color: 'var(--pink)', fontWeight: 600 }}>HOMEMADE</div>
+            <div style={{ fontWeight: 900, fontSize: 15 }}>Sweetnation</div>
+            <div style={{ fontSize: 10, fontWeight: 800, letterSpacing: '.5px', textTransform: 'uppercase' }}>HOMEMADE</div>
           </div>
         </div>
         {NAV.map(({ to, label, icon: Icon, end }) => (

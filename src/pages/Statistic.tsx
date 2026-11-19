@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { api, rupiah, type Statistic } from '../api';
 import { useAuth } from '../auth';
+import { Pager, usePaged } from '../Pagination';
 import { Empty, Spinner } from '../ui';
 
 export default function StatisticPage() {
@@ -19,6 +20,8 @@ export default function StatisticPage() {
       .finally(() => setLoading(false));
   }, [user]);
 
+  const paged = usePaged(rows, { size: 10 });
+
   if (loading) return <div className="content"><Spinner /></div>;
   if (error) return <div className="content"><p className="error-text">{error}</p></div>;
   if (rows.length === 0) return <div className="content"><Empty text="Belum ada data penjualan" /></div>;
@@ -36,12 +39,13 @@ export default function StatisticPage() {
 
   return (
     <div className="content">
-      <div className="page-max" style={{ maxWidth: 720 }}>
+      <div className="page-max" style={{ maxWidth: 820 }}>
         <div className="page-head">
           <h2>Statistik Penjualan</h2>
+          <span className="sub">{rows.length} hari</span>
         </div>
 
-        <div className="stat-grid" style={{ marginBottom: 16 }}>
+        <div className="stat-grid" style={{ marginBottom: 18 }}>
           <div className="stat"><div className="label">Total Pesanan</div><div className="value">{qtyAll}</div></div>
           <div className="stat money"><div className="label">Total Omzet</div><div className="value">{rupiah(totalAll)}</div></div>
         </div>
@@ -55,43 +59,52 @@ export default function StatisticPage() {
                 x2={w - pad}
                 y1={h - pad - f * (h - pad * 2)}
                 y2={h - pad - f * (h - pad * 2)}
-                stroke="#eee"
+                stroke="#0b0b0b"
                 strokeWidth="1"
+                strokeDasharray="4 4"
+                opacity="0.25"
               />
             ))}
-            <polyline points={points} fill="none" stroke="#f395be" strokeWidth="2.5" strokeLinejoin="round" />
+            <polyline points={points} fill="none" stroke="#0b0b0b" strokeWidth="3" strokeLinejoin="round" />
             {rows.map((r, i) => {
               const cx = pad + i * step;
               const cy = h - pad - ((r.total || 0) / max) * (h - pad * 2);
               return (
-                <g key={`${r.tanggal}-${i}`}>
-                  <circle cx={cx} cy={cy} r="3.5" fill="#fff" stroke="#f395be" strokeWidth="2.5">
-                    <title>{`${r.tanggal}: ${rupiah(r.total)} (${r.jumlah} pesanan)`}</title>
-                  </circle>
-                </g>
+                <circle key={`${r.tanggal}-${i}`} cx={cx} cy={cy} r="4" fill="#ff8fb8" stroke="#0b0b0b" strokeWidth="2">
+                  <title>{`${r.tanggal}: ${rupiah(r.total)} (${r.jumlah} pesanan)`}</title>
+                </circle>
               );
             })}
           </svg>
         </div>
 
-        <div className="card" style={{ marginTop: 16 }}>
-          <div className="table-wrap">
-            <table className="simple">
-              <thead>
-                <tr><th>Tanggal</th><th className="num">Pesanan</th><th className="num">Omzet</th></tr>
-              </thead>
-              <tbody>
-                {rows.map((r, i) => (
-                  <tr key={`${r.tanggal}-${i}`}>
-                    <td>{r.tanggal}</td>
-                    <td className="num">{r.jumlah}</td>
-                    <td className="num">{rupiah(r.total)}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+        <div className="section-title"><h3>Rincian Harian</h3></div>
+
+        <div className="table-wrap">
+          <table className="simple">
+            <thead>
+              <tr><th>Tanggal</th><th className="num">Pesanan</th><th className="num">Omzet</th></tr>
+            </thead>
+            <tbody>
+              {paged.slice.map((r, i) => (
+                <tr key={`${r.tanggal}-${i}`}>
+                  <td>{r.tanggal}</td>
+                  <td className="num">{r.jumlah}</td>
+                  <td className="num">{rupiah(r.total)}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
         </div>
+
+        <Pager
+          page={paged.page}
+          pages={paged.pages}
+          total={paged.total}
+          size={paged.size}
+          onPage={paged.setPage}
+          onSize={paged.setSize}
+        />
       </div>
     </div>
   );
