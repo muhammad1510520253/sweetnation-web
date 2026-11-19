@@ -1,4 +1,5 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from 'react';
+import { X } from 'lucide-react';
 
 type ToastKind = 'info' | 'success' | 'error';
 type ToastCtx = { show: (message: string, kind?: ToastKind) => void };
@@ -58,6 +59,9 @@ export function Modal({
         style={wide ? { maxWidth: 720 } : undefined}
         onClick={(e) => e.stopPropagation()}
       >
+        <button className="modal-x no-print" onClick={onClose} aria-label="Tutup">
+          <X size={18} />
+        </button>
         <h3 className="no-print">{title}</h3>
         {children}
       </div>

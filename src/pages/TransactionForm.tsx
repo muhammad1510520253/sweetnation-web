@@ -120,8 +120,8 @@ export default function TransactionForm() {
   };
 
   return (
-    <div className="content">
-      <div className="page-max" style={{ maxWidth: 640 }}>
+    <div className="content tx-content">
+      <div className="page-max tx-page" style={{ maxWidth: 640 }}>
         <div className="page-head">
           <h2>Tambah Transaksi</h2>
         </div>
@@ -150,7 +150,10 @@ export default function TransactionForm() {
         </div>
 
         <div className="section-title">
-          <h3 style={{ fontSize: 16 }}>Item Pesanan</h3>
+          <h3 style={{ fontSize: 16, display: 'flex', alignItems: 'center', gap: 8 }}>
+            Item Pesanan
+            <span className="tx-count">{rows.length}</span>
+          </h3>
           <button className="btn sm" onClick={() => { setPq(''); setPicker(true); }}><Plus size={14} /> Menu</button>
         </div>
 
@@ -211,11 +214,11 @@ export default function TransactionForm() {
 
         <div className="tx-foot">
         <div className="card tx-sum">
-          <div className="tx-sum-cell">
-            <span className="tx-sum-label">Sub Total</span>
+          <div className="tx-sum-row">
+            <span className="tx-sum-label">Subtotal</span>
             <span className="tx-sum-value">{rupiah(subTotal)}</span>
           </div>
-          <div className="tx-sum-cell">
+          <div className="tx-sum-row">
             <label className="tx-sum-label" htmlFor="diskon-tx">Diskon (Rp)</label>
             <input
               id="diskon-tx"
@@ -227,7 +230,7 @@ export default function TransactionForm() {
               onChange={(e) => setDiskon(e.target.value.replace(/\D/g, ''))}
             />
           </div>
-          <div className="tx-sum-cell tx-sum-total">
+          <div className="tx-sum-row tx-sum-total">
             <span className="tx-sum-label">Total</span>
             <span className="tx-sum-value">{rupiah(total)}</span>
           </div>
