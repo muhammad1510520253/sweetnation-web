@@ -691,3 +691,39 @@ table.simple tbody tr:nth-child(even) { background: #fdf8ec; }
 @media (min-width: 900px) {
   .modal { border-radius: var(--wob-a); }
 }
+
+/* ---------- stok: pilih massal + ubah status ---------- */
+.stock-row.on { background: var(--pink-soft); box-shadow: var(--shadow-sm), inset 0 0 0 1px var(--ink); }
+.pick {
+  flex: 0 0 22px; width: 22px; height: 22px; padding: 0;
+  display: grid; place-items: center; cursor: pointer;
+  background: var(--white); border: 2px solid var(--ink);
+  border-radius: 5px 3px 6px 4px / 3px 6px 4px 5px;
+  color: var(--ink); box-shadow: 2px 2px 0 var(--ink-soft);
+}
+.pick[aria-checked='true'] { background: var(--yellow); }
+.pick:active { transform: translate(1px, 1px); box-shadow: none; }
+
+.bulk-bar {
+  position: sticky; bottom: 66px; z-index: 20;
+  margin: 14px 0 4px; padding: 10px 12px;
+  display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
+  background: var(--white); border: var(--bd); border-radius: var(--wob-b);
+  box-shadow: var(--shadow-sm), inset 0 0 0 1px rgba(47, 43, 38, 0.1);
+}
+.bulk-count { font-family: 'Caveat', cursive; font-size: 19px; font-weight: 700; }
+.bulk-actions { display: flex; align-items: center; gap: 6px; margin-left: auto; flex-wrap: wrap; }
+.bulk-actions .btn.xs { box-shadow: 2px 2px 0 var(--ink-soft); }
+.btn.xs.banyak { background: var(--lime); }
+.btn.xs.sedikit { background: var(--yellow); }
+.btn.xs.habis { background: var(--red); }
+@media (min-width: 900px) {
+  .bulk-bar { bottom: 12px; }
+}
+
+.stock-tools { display: flex; align-items: center; gap: 8px; margin-bottom: 12px; }
+.stock-tools .search-wrap { flex: 1 1 auto; }
+.stock-tools .btn.xs { flex: 0 0 auto; white-space: nowrap; }
+
+.list.bulk-open { padding-bottom: 92px; }
+@media (min-width: 900px) { .list.bulk-open { padding-bottom: 64px; } }

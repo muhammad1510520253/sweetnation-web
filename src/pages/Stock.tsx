@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import { Pencil, Plus, Search } from 'lucide-react';
+import { Check, Pencil, Plus, Search, X } from 'lucide-react';
 import { api, rupiah, type Stock } from '../api';
 import { useAuth } from '../auth';
 import { Pager, usePaged } from '../Pagination';
@@ -42,6 +42,8 @@ export default function StockPage() {
   const [form, setForm] = useState<FormState | null>(null);
   const [ask, setAsk] = useState(false);
   const [saving, setSaving] = useState(false);
+  const [sel, setSel] = useState<Set<string>>(new Set());
+  const [bulkBusy, setBulkBusy] = useState('');
 
   const load = useCallback(async () => {
     if (!user) return;
@@ -70,6 +72,68 @@ export default function StockPage() {
   }, [rows, q, filter]);
 
   const paged = usePaged(shown, { size: 20, resetKey: `${q}|${filter}` });
+
+  const toggle = (id: string) =>
+    setSel((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
+
+  /** Pilih/hapus pilih semua baris di halaman aktif. */
+  const togglePage = () => {
+    const ids = paged.slice.map((r) => r.stok_id);
+    const all = ids.length > 0 && ids.every((id) => sel.has(id));
+    setSel((prev) => {
+      const next = new Set(prev);
+      ids.forEach((id) => (all ? next.delete(id) : next.add(id)));
+      return next;
+    });
+  };
+
+  /** Ubah status banyak stok sekaligus. Apps Script hanya bisa 1 baris per
+   *  request, jadi dikirim berurutan (2 worker) — cukup untuk puluhan bahan. */
+  const bulkStatus = async (status: string) => {
+    if (!user || sel.size === 0 || bulkBusy) return;
+    const targets = rows.filter((r) => sel.has(r.stok_id));
+    const queue = [...targets];
+    let done = 0;
+    let fail = 0;
+    setBulkBusy(`0/${targets.length}`);
+
+    const worker = async () => {
+      while (queue.length) {
+        const s = queue.shift();
+        if (!s) break;
+        try {
+          await api.saveStock(user.user_id, {
+            stok_id: s.stok_id,
+            nama: s.nama,
+            harga: Number(s.harga) || 0,
+            satuan: satuanText(s.satuan),
+            harga_satuan: Number(s.harga_satuan) || 0,
+            status,
+            isUpdate: true,
+            isDelete: false,
+          });
+          done += 1;
+        } catch {
+          fail += 1;
+        }
+        setBulkBusy(`${done + fail}/${targets.length}`);
+      }
+    };
+
+    await Promise.all([worker(), worker()]);
+    setBulkBusy('');
+    setSel(new Set());
+    show(
+      fail ? `${done} diperbarui, ${fail} gagal` : `${done} stok → ${status}`,
+      fail ? 'error' : 'success',
+    );
+    await load();
+  };
 
   const hargaSatuan = useMemo(() => {
     if (!form) return 0;
@@ -130,9 +194,16 @@ export default function StockPage() {
           </button>
         </div>
 
-        <div className="search-wrap" style={{ marginBottom: 12 }}>
-          <Search size={16} style={{ color: '#555' }} />
-          <input className="input" placeholder="Cari stok…" value={q} onChange={(e) => setQ(e.target.value)} />
+        <div className="stock-tools">
+          <div className="search-wrap">
+            <Search size={16} style={{ color: '#555' }} />
+            <input className="input" placeholder="Cari stok…" value={q} onChange={(e) => setQ(e.target.value)} />
+          </div>
+          {shown.length > 0 && (
+            <button className="btn xs ghost" onClick={togglePage} title="Pilih semua yang tampil">
+              {paged.slice.every((r) => sel.has(r.stok_id)) ? 'Batal pilih' : 'Pilih semua'}
+            </button>
+          )}
         </div>
 
         <div className="filters">
@@ -149,9 +220,19 @@ export default function StockPage() {
           <Empty text="Belum ada data stok" />
         ) : (
           <>
-            <div className="list grid-2">
+            <div className={`list grid-2${sel.size ? ' bulk-open' : ''}`}>
               {paged.slice.map((s) => (
-                <div className="stock-row" key={s.stok_id}>
+                <div className={`stock-row ${sel.has(s.stok_id) ? 'on' : ''}`} key={s.stok_id}>
+                  <button
+                    type="button"
+                    role="checkbox"
+                    aria-checked={sel.has(s.stok_id)}
+                    aria-label={`Pilih ${s.nama}`}
+                    className="pick"
+                    onClick={() => toggle(s.stok_id)}
+                  >
+                    {sel.has(s.stok_id) && <Check size={13} strokeWidth={3} />}
+                  </button>
                   <div className="info">
                     <div className="nm">{s.nama}</div>
                     <div className="meta">
@@ -163,6 +244,34 @@ export default function StockPage() {
                 </div>
               ))}
             </div>
+
+            {sel.size > 0 && (
+              <div className="bulk-bar">
+                <span className="bulk-count">
+                  {bulkBusy ? `Menyimpan ${bulkBusy}` : `${sel.size} dipilih`}
+                </span>
+                <div className="bulk-actions">
+                  {STATUSES.map((st) => (
+                    <button
+                      key={st}
+                      className={`btn xs ${st.toLowerCase()}`}
+                      onClick={() => void bulkStatus(st)}
+                      disabled={Boolean(bulkBusy)}
+                    >
+                      {st}
+                    </button>
+                  ))}
+                  <button
+                    className="icon-btn"
+                    onClick={() => setSel(new Set())}
+                    aria-label="Batal pilih"
+                    disabled={Boolean(bulkBusy)}
+                  >
+                    <X size={14} />
+                  </button>
+                </div>
+              </div>
+            )}
 
             <Pager
               page={paged.page}
