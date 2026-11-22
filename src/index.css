@@ -1,27 +1,34 @@
 /* ============================================================
-   Sweetnation Web — Neo-Brutalism
-   Tebal, kontras, hard shadow. Satu stylesheet, breakpoint utama 900px.
+   Sweetnation Web — Hand-drawn / doodle sketch
+   Kertas, garis pensil gemetar, sudut tidak rata. Satu stylesheet, breakpoint utama 900px.
    ============================================================ */
 
 :root {
-  --ink: #0b0b0b;
-  --paper: #fffdf5;
-  --white: #fff;
-  --pink: #ff8fb8;
-  --pink-dark: #d43f78;
-  --pink-soft: #ffe3ee;
-  --yellow: #ffd93d;
-  --blue: #8ecdf7;
-  --lime: #b6f36b;
-  --grey: #6b6b6b;
-  --grey-line: #e3e0d6;
+  /* --- hand-drawn palette: pensil & kertas --- */
+  --ink: #2f2b26;
+  --ink-soft: rgba(47, 43, 38, 0.28);
+  --paper: #fbf6ea;
+  --white: #fffdf6;
+  --pink: #ffa8c8;
+  --pink-dark: #d3467d;
+  --pink-soft: #ffe7f0;
+  --yellow: #ffdf6b;
+  --blue: #a9d9f6;
+  --lime: #c4f08c;
+  --grey: #7b7266;
+  --grey-line: #e4dbc6;
   --text-grey: #ded9cc;
-  --green: #35c98a;
-  --red: #ff5c5c;
-  --bd: 3px solid var(--ink);
-  --shadow: 6px 6px 0 var(--ink);
-  --shadow-sm: 4px 4px 0 var(--ink);
-  --radius: 14px;
+  --green: #3ec98d;
+  --red: #ff8d7e;
+  --bd: 2px solid var(--ink);
+  --shadow: 5px 6px 0 var(--ink-soft);
+  --shadow-sm: 3px 4px 0 var(--ink-soft);
+  --radius: 13px;
+  /* sudut gemetar ala sketsa tangan — 3 varian biar gak seragam */
+  --wob-a: 22px 10px 26px 8px / 10px 26px 8px 22px;
+  --wob-b: 11px 24px 9px 27px / 24px 11px 27px 9px;
+  --wob-c: 27px 12px 20px 14px / 12px 20px 14px 27px;
+  --wob-s: 13px 5px 15px 4px / 5px 15px 4px 13px;
 }
 
 * { box-sizing: border-box; }
@@ -30,10 +37,15 @@ html, body, #root { height: 100%; }
 
 body {
   margin: 0;
-  font-family: 'Chivo', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  font-family: 'Patrick Hand', 'Comic Sans MS', system-ui, sans-serif;
+  font-size: 16px;
+  letter-spacing: 0.2px;
   background-color: var(--paper);
-  background-image: radial-gradient(rgba(11, 11, 11, 0.07) 1.2px, transparent 1.2px);
-  background-size: 20px 20px;
+  background-image:
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)' opacity='0.09'/%3E%3C/svg%3E"),
+    repeating-linear-gradient(to bottom, transparent 0 27px, rgba(47, 43, 38, 0.045) 27px 28px),
+    radial-gradient(rgba(47, 43, 38, 0.05) 1px, transparent 1px);
+  background-size: 160px 160px, 100% 28px, 22px 22px;
   color: var(--ink);
   -webkit-font-smoothing: antialiased;
 }
@@ -553,3 +565,129 @@ table.simple td.num, table.simple th.num { text-align: right; font-variant-numer
   box-shadow: 2px 2px 0 rgba(11,11,11,0.15);
 }
 .tx-sum-total .tx-sum-value { font-size: 19px; color: var(--pink-dark); }
+
+
+/* ============================================================
+   HAND-DRAWN LAYER
+   Lapisan terakhir: mengubah sudut tegas & bayangan keras jadi
+   garis pensil yang gemetar, ala sketsa buku catatan.
+   ============================================================ */
+
+/* ---------- tulisan tangan ---------- */
+h1, h2, h3, h4,
+.page-head h2, .section-title h3, .login-head h1,
+.stat .value, .tx-buyer, .tx-sum-value, .cal-head strong, .modal h3 {
+  font-family: 'Caveat', 'Patrick Hand', cursive;
+  font-weight: 700;
+  letter-spacing: 0;
+  text-transform: none;
+}
+.page-head h2 { font-size: clamp(28px, 6vw, 36px); line-height: 1.02; }
+.section-title h3 { font-size: 23px; }
+.modal h3 { font-size: 22px; }
+.stat .value { font-size: 25px; letter-spacing: 0; }
+.stat.money .value { font-size: 20px; }
+.tx-buyer { font-size: 20px; }
+.tx-total { font-size: 17px; }
+.login-head h1 { font-size: clamp(36px, 10vw, 52px); text-shadow: 1px 2px 0 rgba(47, 43, 38, 0.12); }
+.tx-sum-value { font-size: 18px; }
+.tx-sum-total .tx-sum-value { font-size: 23px; }
+.cal-head strong, .pager-count strong, .receipt h4 { font-family: 'Caveat', 'Patrick Hand', cursive; font-size: 16px; }
+.receipt h4 { font-size: 19px; }
+
+/* garis bawah coretan tangan untuk judul */
+.page-head h2, .section-title h3 { position: relative; display: inline-block; }
+.page-head h2::after, .section-title h3::after {
+  content: ''; position: absolute; left: 2px; right: 2px; bottom: -5px; height: 5px;
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='8' viewBox='0 0 140 8'%3E%3Cpath d='M2 5c16-4 30 3 45 0s27-4 41 0 24 2 50-2' fill='none' stroke='%23d3467d' stroke-width='2.4' stroke-linecap='round' opacity='0.55'/%3E%3C/svg%3E") no-repeat left center / 100% 100%;
+  pointer-events: none;
+}
+
+/* label kecil tetap huruf balok tangan */
+.field label, .stat .label, .tx-sum-label, .page-head .sub,
+.toolbar label, .chip, .pager-count, .pager-size-label {
+  font-family: 'Patrick Hand', 'Comic Sans MS', cursive;
+  letter-spacing: 0.6px;
+  font-weight: 400;
+}
+.field label { font-size: 12.5px; }
+.btn { font-family: 'Patrick Hand', 'Comic Sans MS', cursive; font-weight: 400; letter-spacing: 0.8px; }
+.bottom-nav a { font-weight: 400; }
+
+/* ---------- sudut gemetar ---------- */
+.card, .tx-card, .stock-row, .menu-item, .empty, .pager, .product,
+.table-wrap, .receipt, .dd-list, .cal, .modal, .tx-foot .card {
+  border-radius: var(--wob-a);
+  box-shadow: var(--shadow-sm), inset 0 0 0 1px rgba(47, 43, 38, 0.10);
+  box-shadow: var(--shadow-sm);
+}
+.stat { box-shadow: var(--shadow-sm); }
+.stat:nth-child(3n + 1) { border-radius: var(--wob-a); }
+.stat:nth-child(3n + 2) { border-radius: var(--wob-b); }
+.stat:nth-child(3n) { border-radius: var(--wob-c); }
+.pager, .table-wrap, .modal { border-radius: var(--wob-b); }
+.tx-card:nth-child(even), .menu-item:nth-child(even), .stock-row:nth-child(even) { border-radius: var(--wob-b); }
+.tx-card:nth-child(3n), .menu-item:nth-child(3n), .stock-row:nth-child(3n) { border-radius: var(--wob-c); }
+
+.input, .select, .textarea, .dd-btn, .btn, .icon-btn, .pg-step, .pg-num,
+.modal-x, .cal-nav, .tx-sum-input, .modal-actions .btn {
+  border-radius: var(--wob-s);
+  box-shadow: var(--shadow-sm), inset 0 0 0 1px rgba(47, 43, 38, 0.10);
+}
+.chip { border-radius: var(--wob-s); font-size: 11px; }
+.btn:not(.xs):not(.sm) { padding: 10px 18px; }
+.btn.sm, .btn.xs { border-radius: var(--wob-c); }
+
+/* ---------- interaksi: miring sedikit, bayangan lembut ---------- */
+.btn:hover { transform: translate(-1px, -1px) rotate(-0.7deg); box-shadow: 5px 6px 0 var(--ink-soft); }
+.btn:active { transform: translate(1px, 2px) rotate(0.5deg); box-shadow: 1px 2px 0 var(--ink-soft); }
+.product:hover, .tx-card:hover, .menu-item:hover {
+  transform: translate(-1px, -1px) rotate(-0.5deg); box-shadow: 6px 7px 0 var(--ink-soft);
+}
+.product:active, .tx-card:active, .menu-item:active {
+  transform: translate(1px, 2px) rotate(0.4deg); box-shadow: 1px 2px 0 var(--ink-soft);
+}
+.product:hover { box-shadow: 6px 7px 0 var(--ink-soft); }
+.product:active { box-shadow: 1px 2px 0 var(--ink-soft); }
+.input:focus, .select:focus, .textarea:focus { box-shadow: 4px 5px 0 var(--ink-soft); }
+.pg-num.on { box-shadow: 3px 4px 0 var(--ink-soft); transform: translate(-1px, -1px) rotate(-1deg); }
+.icon-btn:active, .modal-x:active, .cal-nav:active { box-shadow: none; transform: translate(1px, 2px); }
+
+/* ---------- navigasi & kerangka ---------- */
+.sidebar { background: var(--white); border-right: 2px solid var(--ink); }
+.sidebar .brand img { box-shadow: 2px 3px 0 var(--ink-soft); }
+.sidebar a { border-radius: var(--wob-c); font-size: 15px; font-weight: 400; font-family: 'Patrick Hand', cursive; }
+.sidebar a:hover { background: var(--pink-soft); border-color: var(--ink); }
+.sidebar a.active { background: var(--yellow); box-shadow: var(--shadow-sm); }
+.bottom-nav { border-top: 2px solid var(--ink); background: var(--white); }
+.bottom-nav a { font-family: 'Patrick Hand', cursive; font-weight: 400; font-size: 11.5px; letter-spacing: 0.3px; }
+.topbar .logo { box-shadow: 2px 2px 0 var(--ink-soft); }
+
+/* garis putus-putus ala buku tulis */
+.divider { height: 0; background: none; border-top: 2px dashed var(--ink-soft); border-radius: 0; }
+.tx-foot { background: var(--paper); }
+
+/* ---------- login ---------- */
+.login-head {
+  position: relative; border-bottom: none; padding-bottom: 46px;
+}
+.login-head::after {
+  content: ''; position: absolute; left: 0; right: 0; bottom: -12px; height: 13px;
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='96' height='13' viewBox='0 0 96 13' preserveAspectRatio='none'%3E%3Cpath d='M0 0h96v5c-12 7-24-4-36 1s-24 7-36 1S4 4 0 7V0z' fill='%23ffa8c8'/%3E%3C/svg%3E") repeat-x left top / 96px 13px;
+  pointer-events: none;
+}
+.login-head h1 { position: relative; z-index: 1; }
+.login-head .logo-ring { box-shadow: var(--shadow-sm); }
+.login-body .card { border-radius: var(--wob-a); }
+
+/* ---------- tabel, struk, loader ---------- */
+table.simple thead th { font-family: 'Patrick Hand', cursive; font-weight: 400; letter-spacing: 0.5px; }
+table.simple tbody tr:nth-child(even) { background: #fdf8ec; }
+.receipt { border-style: dashed; }
+.loader { border: 3px solid var(--pink-soft); border-top-color: var(--ink); }
+.toast { border-radius: var(--wob-b); box-shadow: 0 0 0 2px var(--ink), 4px 5px 0 var(--ink-soft); }
+.error-text { border-radius: var(--wob-c); box-shadow: 3px 4px 0 var(--ink-soft); }
+
+@media (min-width: 900px) {
+  .modal { border-radius: var(--wob-a); }
+}
